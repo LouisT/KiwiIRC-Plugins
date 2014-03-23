@@ -1,0 +1,63 @@
+<script type="text/javascript">
+    // Last.fm Now Playing (v0.0.1)
+    // Author: https://github.com/LouisT/
+    // API Key required: http://www.last.fm/api/account/create
+
+    // output to current window: /lastfm, /lfm
+    // (re)set Last.fm username: /setlfm
+
+    // You can use my key... http://www.last.fm/api/auth?api_key=b8db6b70375dd5cbbd9b89a1bb6d89b4
+    var API_KEY = "b8db6b70375dd5cbbd9b89a1bb6d89b4",
+        control = kiwi.components.ControlInput(),
+        LFM_USER = null;
+    function setLFM () {
+             LFM_USER = prompt("Last.fm username",(LFM_USER?LFM_USER:"Louis_T"));
+             if (!/^[a-z][_a-z0-9\-]{1,14}$/i.test(LFM_USER)) {
+                alert('Sorry, invalid last.fm user name supplied. Please try again.'); // This should be handled better!
+                setLFM();
+                return false;
+             };
+    };
+    function getLFMTrack () {
+             if (!LFM_USER) {
+                setLFM();
+             };
+             if (!/^[a-z][_a-z0-9\-]{1,14}$/i.test(LFM_USER)) {
+                alert('Sorry, invalid last.fm user name supplied. Please try again.'); // This should be handled better!
+                setLFM();
+                return false;
+             };
+             $.ajax({
+                 type : "GET",
+                 dataType : "jsonp",
+                 url : "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user="+LFM_USER+"&api_key="+API_KEY+"&format=json&limit=1&callback=?",
+                 success: function(data){
+                          if (!('error' in data) && 'recenttracks' in data) {
+                             var area = $("#kiwi .controlbox textarea");
+                             var recent = (Array.isArray(data.recenttracks.track)?data.recenttracks.track[0]:data.recenttracks.track);
+                             var np = ('@attr' in recent && 'nowplaying' in recent["@attr"] && recent["@attr"].nowplaying == "true");
+                             var msg = (np?"Now Playing:":"Played:");
+                             msg += " "+recent.name+" by "+recent.artist["#text"]+" ("+
+                                   (recent.album["#text"]||"Unknown Album")+") - "+recent.url;
+                             if (!np && 'date' in recent) {
+                                msg += " - Played on "+recent.date["#text"];
+                             };
+                             var network = kiwi.connections.active_connection;
+                             network.gateway.action(kiwi.panels().active.get('name'),msg);
+
+                             // Display an (fake) action message in the client!
+                             var nick = kiwi.connections.active_connection.get('nick');
+                             kiwi.panels().active.addMsg(nick,"* "+nick+" "+msg,"action");
+                           } else {
+                             alert("[Last.fm Error] "+data.message); // There was an error, this should be handled better!
+                          };
+                 }
+            });
+    };
+    var $icon = $("<a class=\"lastfm\" title=\"Get Last.fm\"><i class=\"icon-music\"></i></a>");
+    $icon.click(function () { getLFMTrack(); });
+    control.on('command:lastfm', function () { getLFMTrack(); });
+    control.on('command:lfm', function () { getLFMTrack(); });
+    control.on('command:setlfm', function () { setLFM(); });
+    control.addPluginIcon($icon);
+</script>
