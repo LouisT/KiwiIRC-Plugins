@@ -1,0 +1,27 @@
+<script>
+// Automatically embed pastes from http://thepb.in/
+kiwi.addMediaMessageType(function(url) {
+     return /https?:\/\/((.+)\.)?thepb\.in(\/private)?\/[a-z0-9]+\/?$/gi.test(url);
+},function (url) {
+     var id = Math.random().toString(30).split('.')[1].slice(0,10)
+     var div = document.createElement('div');
+     div.style = 'overflow: auto; width: 700px; height: 270px;'
+     div.id = 'tpb-'+id;
+     var script = document.createElement('script');
+     script.type = 'text/javascript';
+     script.src = url+'.kiwi?div='+id;
+     script.id = 'scp-'+id;
+     div.appendChild(script);
+     return div;
+});
+function ThePBKiwi (str,id) {
+         var old = null;
+         if ((old = document.getElementById('scp-'+id))) {
+            old.parentNode.removeChild(old);
+         };
+         var elm = null;
+         if ((elm = document.getElementById('tpb-'+id))) {
+            elm.innerHTML += str;
+         };
+};
+</script>
