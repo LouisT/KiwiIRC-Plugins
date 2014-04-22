@@ -1,13 +1,29 @@
 <script type="text/javascript">
 // Automatically embed pastes from http://thepb.in/
-kiwi.addMediaMessageType(function(url) {
-     return /^https?:\/\/((.+)\.)?thepb\.in(\/private)?\/[a-z0-9]+\/?$/i.test(url);
-},function (url) {
-    $el = $("<iframe width=\"100%\" height=\"100%\" frameBorder=\"0\" src=\""+url+".kiwi\"></iframe>");
-    $el.load(function() {
-        $el.css({margin: 'none', padding: 'none'});
-        $el.parent().css({width:'90%', height: '432px', overflow: 'hidden', padding: '0', 'box-sizing':'border-box'});
-    });
-    return $el;
-});
+// Requires window.postMessage. (FF3+, IE8+, Chrome, Safari(5?), Opera10+)
+if (('postMessage' in window)) {
+   kiwi.addMediaMessageType(function(url) {
+        return /^https?:\/\/((.+)\.)?thepb\.in(\/private)?\/[a-z0-9]+\/?$/i.test(url);
+   },function (url) {
+        // Get the paste ID.
+        if ((exe = /^https?:\/\/(?:(?:.+)\.)?thepb\.in(?:\/private)?\/([a-z0-9]+)\/?$/i.exec(url))) {
+           var id = exe[1]+'-'+new Date().getTime();
+        };
+        $el = $("<iframe id=\""+id+"\" width=\"100%\" height=\"100%\" frameBorder=\"0\" src=\""+url+".kiwi?div="+id+"\"></iframe>");
+        return $el;
+   });
+   window.addEventListener("message",function (e) {
+          if (/^(https?:\/\/)(.*\.)?thepb\.in/i.test(e.origin)) {
+             if (('i' in e.data && document.getElementById(e.data['i']))) {
+                $('#'+e.data.i).parent().css({
+                     width: e.data['w']+'px', height: e.data['h']+'px', 'min-width': '41%',
+                     'max-width': '90%', 'max-height': '432px', padding: '0',
+                     'box-sizing': 'border-box'
+                });
+             };
+          };
+   },true);
+ } else {
+   console.log("Your browser does not support ThePB's plugin!");
+};
 </script>
