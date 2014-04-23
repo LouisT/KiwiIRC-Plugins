@@ -1,0 +1,126 @@
+@import url("http://fonts.googleapis.com/css?family=Ubuntu+Condensed");
+.ThePB-IN {
+ background-color: #FFF;
+ outline: none;
+ font-family: Trebuchet MS;
+ font-family: 'Ubuntu Condensed', sans-serif;
+ font-size: 14px;
+ width: 165px;
+ border: 2px solid #eee;
+}
+.ThePB-HO {
+ background-color: #FFF;
+ font-family: Trebuchet MS;
+ font-family: 'Ubuntu Condensed', sans-serif;
+ font-size: 14px;
+ color: #6d6d6d;
+ float: right;
+}
+.ThePB-ER {
+ font-family: Trebuchet MS;
+ font-family: 'Ubuntu Condensed', sans-serif;
+ font-size: 14px;
+ color: red;
+}
+.ThePB-SU {
+ font-family: Trebuchet MS;
+ font-family: 'Ubuntu Condensed', sans-serif;
+ font-size: 14px;
+ color: green;
+}
+.ThePB-BU {
+ width: 75px;
+ border: 2px solid #eee;
+ color: #6d6d6d;
+ background: #FFF;
+}
+.ThePB-BU::-moz-focus-inner {
+ border: 0;
+}
+.ThePB-BU:hover,.ThePB-IN:hover,.ThePB-TA:hover,.ThePB-SL select:hover {
+ border: 2px solid #dfdfdf;
+}
+.ThePB-CL {
+ float: right;
+ color: #4d4d4d;
+}
+.ThePB-CL:hover {
+ cursor: pointer;
+}
+.ThePB-TA { 
+ text-rendering: optimizeSpeed;
+ resize: none;
+ outline: none;
+ position: relative;
+ overflow-x: auto;
+ border: 2px solid #eee;
+ font-size: 12px;
+ font-family: consolas, monospace;
+ width: 99%;
+}
+.ThePB-SL select:-moz-focusring {
+ color: transparent;
+ text-shadow: 0 0 0 #6d6d6d;
+}
+.ThePB-SL select {
+ background-color: #FFF;
+ font-family: Trebuchet MS;
+ font-family: 'Ubuntu Condensed', sans-serif;
+ font-size: 14px;
+ width: 165px;
+ border: 2px solid #eee;
+ outline: 1px none !important;
+ color: #6d6d6d;
+}
+.ThePB-SL select:focus {
+ border-color: #dfdfdf;
+ border-style: solid;
+ outline: 1px none !important;
+}
+#ThePB-LB {
+ min-width: 60%;
+ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+ position: fixed;
+ left: 50%;
+ top: 50%;
+ padding: 6px;
+ border: 1px solid black;
+ background: #fafafa;
+ z-index: 9999; 
+ display: none;
+ -webkit-border-radius: 8px;
+ -moz-border-radius: 8px;
+ border-radius: 8px;
+}
+#ThePB-LBS {
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background: #000;
+ filter: alpha(opacity=90);
+ -moz-opacity: 0.90;
+ -khtml-opacity: 0.90;
+ opacity: 0.90;
+ z-index: 9998;
+ display: none;
+}
+::-webkit-input-placeholder {
+ color: #6d6d6d;
+ opacity: 1 !important;
+ }
+::-moz-placeholder {
+ color: #6d6d6d;
+ opacity: 1 !important;
+}
+:-moz-placeholder {
+ color: #6d6d6d;
+ opacity: 1 !important;
+}
+:-ms-input-placeholder {
+ color: #6d6d6d;
+}
+.placeholder {
+ color: #6d6d6d;
+}
