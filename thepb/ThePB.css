@@ -15,6 +15,7 @@
  font-size: 14px;
  color: #6d6d6d;
  float: right;
+ margin-right: 5px;
 }
 .ThePB-ER {
  font-family: Trebuchet MS;
@@ -43,9 +44,14 @@
 .ThePB-CL {
  float: right;
  color: #4d4d4d;
+ margin-right: 5px;
 }
 .ThePB-CL:hover {
  cursor: pointer;
+}
+.ThePB-WA {
+ margin: 5px;
+ padding-left: 2px;
 }
 .ThePB-TA { 
  text-rendering: optimizeSpeed;

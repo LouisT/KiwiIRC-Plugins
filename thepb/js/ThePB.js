@@ -66,6 +66,13 @@ function ThePB () {
                    $("#ThePB-LL").append($("<option>",{value:key}).text(Langs[key]));
             });
             window["ThePB-LB"] = new LightBox($("#ThePB-Hidden").html());
+            $(document).keyup(function(e) {
+                  if ((("which" in e)?e.which:e.keyCode) == 27) {
+                     window["ThePB-LB"].close();
+                     e.preventDefault();
+                     e.stopPropagation();
+                  };
+            });
          };
          ThePBReset();
          window["ThePB-LB"].open();
