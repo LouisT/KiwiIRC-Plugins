@@ -60,7 +60,7 @@ function ThePBCT () {
             $("#ThePB-TA").val("");
          }
 }
-function ThePB () {
+function ThePB (content) {
          if (!("ThePB-LB" in window)) {
             Object.keys(Langs).forEach(function(key){
                    $("#ThePB-LL").append($("<option>",{value:key}).text(Langs[key]));
@@ -82,6 +82,9 @@ function ThePB () {
              window["ThePB-LB"].close();
          };
          $("#ThePB-Hidden").remove();
+         if (content) {
+            $("#ThePB-TA").val(content);
+         };
 };
 function ThePBReset () {
          $("#ThePB-ER").html("");
@@ -102,13 +105,27 @@ function ThePBPaste (mode) {
                 $("#ThePB-ER").html(data.error);
               } else {
                 window["ThePB-LB"].close();
-                var area = $("#kiwi .controlbox textarea");
-                area.val(area.val() + data.url);
+                var area = $("#kiwi .controlbox textarea"),
+                    val = area.val();
+                if (!/(.*)\s+$/.test(val)) {
+                   val += " ";
+                };
+                area.val((val+data.url).trim());
              };
          },"json").fail(function(xhr, e) {
             $("#ThePB-ER").html("There was an error with ThePB. Please try again later. (Code: "+(xhr.status||0)+")");
          });
 };
+$("#kiwi .controlbox textarea").bind("paste",function(e) {
+         var self = $(this);
+         setTimeout(function () {
+              len = self.val().replace(/\s+$/g,"").split(/\r?\n/).length;
+              if (len >= 4 && confirm("You are attempting to paste "+len+" lines. Would you like to use a pastebin instead?")) {
+                 ThePB(self.val()); 
+                 self.val('');
+              };
+         });
+});
 var control = kiwi.components.ControlInput();
 var $icon = $("<a class=\"thepb\" title=\"Upload to ThePB!\"><i class=\"icon-edit\"></i></a>");
 $icon.click(function () { ThePB(); });
