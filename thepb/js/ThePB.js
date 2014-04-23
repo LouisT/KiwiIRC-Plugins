@@ -107,7 +107,7 @@ function ThePBPaste (mode) {
                 window["ThePB-LB"].close();
                 var area = $("#kiwi .controlbox textarea"),
                     val = area.val();
-                if (!/(.*)\s+$/.test(val)) {
+                if (!/\s+$/.test(val)) {
                    val += " ";
                 };
                 area.val((val+data.url).trim());
