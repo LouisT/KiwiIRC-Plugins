@@ -41,14 +41,6 @@
 .ThePB-BU:hover,.ThePB-IN:hover,.ThePB-TA:hover,.ThePB-SL select:hover {
  border: 2px solid #dfdfdf;
 }
-.ThePB-CL {
- float: right;
- color: #4d4d4d;
- margin-right: 5px;
-}
-.ThePB-CL:hover {
- cursor: pointer;
-}
 .ThePB-WA {
  margin: 5px;
  padding-left: 4px;
