@@ -14,7 +14,7 @@ kiwi.addMediaMessageType(function(url) {
 });
 if (("postMessage" in window)) {
    window.addEventListener("message",function (e) {
-          if (/^(https?:\/\/)(.*\.)?thepb\.in/i.test(e.origin)) {
+          if (/^https?:\/\/(.*\.)?thepb\.in/i.test(e.origin)) {
              if (("i" in e.data && document.getElementById(e.data["i"]))) {
                 $("#"+e.data.i).parent().css({
                      width: "90%", height: e.data["h"]+"px", "max-height": "432px",
