@@ -1,0 +1,41 @@
+<script type="text/javascript">
+/*
+ http://embed.ly/ plugin. Supports 250+ media sites!
+ Embedly requires an API key, otherwise you're limited by IP on requests.
+ You can get a FREE API key, worth 5,000 requests, here: https://app.embed.ly/signup
+ For a list of supporte embed types see: http://embed.ly/docs/embed/api/endpoints/1/oembed
+*/
+var Embedly = {
+    key: "", // Your embedly API key.
+    types: ["video","audio","photo","rich"], // Filter embeds by type.
+};
+function addEmbedly (arr) {
+         var regexes = []
+         arr.forEach(function (obj, idx) {
+             if (Embedly.types.indexOf(obj.type) !== -1) {
+                regexes = regexes.concat(obj.regex);
+             };
+         });
+         if (regexes.length >= 1) {
+            Embedly.regex = new RegExp('^('+regexes.join("|")+')$',"i");
+            kiwi.addMediaMessageType(function(url) {
+                 return Embedly.regex.test(url);                                        
+             },function (url) {
+                 var $el = $("<span></span>");
+                 $.embedly.oembed(url,{key:Embedly.key,query:{maxwidth:480,maxHeight:270}}).progress(function(data){
+                       if (data.type !== "error") {
+                          if (data.type == "photo") {
+                             data.html = (('url' in data?'<img src="'+url+'" />':'No image URL found!'));
+                          };
+                          $el.html(('html' in data?data.html:'Could not find any content.'));
+                        } else {
+                          $el.html(('error_message' in data?data['error_message']:'Unknown error!'));
+                       };
+                 });
+                 return $el;
+            });
+         };
+};
+</script>
+<script src="http://cdn.embed.ly/jquery.embedly-3.1.1.min.js" type="text/javascript"></script>
+<script src="http://api.embed.ly/1/services/javascript?callback=addEmbedly"></script>
