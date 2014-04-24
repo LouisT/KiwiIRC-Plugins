@@ -83,6 +83,14 @@
  border-style: solid;
  outline: 1px none !important;
 }
+.ThePB-LBC {
+ float: right;
+ color: #4d4d4d;
+ margin-right: 5px;
+}
+.ThePB-LBC:hover {
+ cursor: pointer;
+}
 #ThePB-LB {
  min-width: 60%;
  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
