@@ -67,7 +67,7 @@ LightBox.prototype.close = function () {
 };
 function ThePB () {
          if (!(this instanceof ThePB)) {
-            return new ThePB(content);
+            return new ThePB();
          };
          var self = this;
          Object.keys(Langs).forEach(function(key){
