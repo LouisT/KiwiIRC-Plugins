@@ -2,27 +2,31 @@
 /*
  http://embed.ly/ plugin. Supports 250+ media sites!
  Embedly requires an API key, otherwise you're limited by IP on requests.
- You can get a FREE API key, worth 5,000 URLs per month, here: https://app.embed.ly/signup
+ You can get a FREE API key, worth 5,000 requests, here: https://app.embed.ly/signup
  For a list of supporte embed types see: http://embed.ly/docs/embed/api/endpoints/1/oembed
 */
-var Embedly = {
+window["Embedly"] = {
     key: "", // Your embedly API key.
     types: ["video","audio","photo","rich"], // Filter embeds by type.
-};
-function addEmbedly (arr) {
+
+    /* No need to edit below this line unless you know what you're doing. */
+
+    add: function (arr) {
          var regexes = []
          arr.forEach(function (obj, idx) {
-             if (Embedly.types.indexOf(obj.type) !== -1) {
+             if (window["Embedly"].types.indexOf(obj.type) !== -1) {
                 regexes = regexes.concat(obj.regex);
              };
          });
          if (regexes.length >= 1) {
-            Embedly.regex = new RegExp('^('+regexes.join("|")+')$',"i");
-            kiwi.addMediaMessageType(function(url) {
-                 return Embedly.regex.test(url);                                        
-             },function (url) {
-                 var $el = $("<span></span>");
-                 $.embedly.oembed(url,{key:Embedly.key,query:{maxwidth:480,maxHeight:270}}).progress(function(data){
+            kiwi.addMediaMessageType((function(obj) {
+                 return function (url) {
+                      $.embedly.defaults.key = obj.key;
+                      return obj.reg.test(url);
+                 };                                       
+             })({key:window["Embedly"].key,reg:RegExp('^('+regexes.join("|")+')$',"i")}),function (url) {
+                 var $el = $("<span>");
+                 $.embedly.oembed(url,{query:{maxwidth:480,maxHeight:270}}).progress(function(data){
                        if (data.type !== "error") {
                           if (data.type == "photo") {
                              data.html = (('url' in data?'<img src="'+url+'" />':'No image URL found!'));
@@ -35,7 +39,9 @@ function addEmbedly (arr) {
                  return $el;
             });
          };
+         delete window["Embedly"]; 
+     },
 };
 </script>
 <script src="http://cdn.embed.ly/jquery.embedly-3.1.1.min.js" type="text/javascript"></script>
-<script src="http://api.embed.ly/1/services/javascript?callback=addEmbedly"></script>
+<script src="http://api.embed.ly/1/services/javascript?callback=window['Embedly']['add']"></script>
