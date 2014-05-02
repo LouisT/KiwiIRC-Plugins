@@ -74,7 +74,6 @@ function ThePB () {
                 $("#ThePB-LL").append($("<option>",{value:key}).text(Langs[key]));
          });
          self.LBManager = new LightBox($("#ThePB-Hidden").html());
-         $(self.LBManager.box).data('ThePB',self);
          $("#ThePB-Hidden").remove();
          $(document).keyup(function(e) {
                if (self.LBManager.opened) {
