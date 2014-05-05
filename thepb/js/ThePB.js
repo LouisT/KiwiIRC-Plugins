@@ -2,30 +2,16 @@ kiwi.addMediaMessageType(function(url) {
      return /^https?:\/\/((.+)\.)?thepb\.in(\/private)?\/[a-z0-9]+\/?$/i.test(url);
  },function (url) {
      if ((exe = /^https?:\/\/(?:(?:.+)\.)?thepb\.in(?:\/private)?\/([a-z0-9]+)\/?$/i.exec(url))) {
-        var id = exe[1]+"-"+new Date().getTime();
-     };
-     $el = $("<iframe id=\""+id+"\" width=\"100%\" height=\"100%\" frameBorder=\"0\" src=\""+url+".kiwi?div="+id+"\"></iframe>");
-     if (!("postMessage" in window)) {
-        $el.load(function () {
-            $el.parent().css({width:"90%", height: "432px", overflow: "hidden", padding: "0", "box-sizing":"border-box"});
+        var id = exe[1]+"-"+new Date().getTime(),
+        $el = $("<div id=\""+id+"\">Loading "+exe[1]+"...</div>");
+        $el.ready(function () {
+           $.get(url+".kiwi",function(data) {
+                $("#"+id).parent().css({"min-width": "485px", "max-width": "95%", "max-height": "480px", overflow: "auto"}).html(data);
+           });
         });
+        return $el;
      };
-     return $el;
 });
-if (("postMessage" in window)) {
-   window.addEventListener("message",function (e) {
-          if (/^https?:\/\/(.*\.)?thepb\.in/i.test(e.origin)) {
-             if (("i" in e.data && document.getElementById(e.data["i"]))) {
-                $("#"+e.data.i).parent().css({
-                     width: "90%", height: e.data["h"]+"px", "max-height": "432px",
-                     overflow: "hidden", padding: "0", "box-sizing": "border-box"
-                });
-             };
-          };
-   },true);
- } else {
-   console.log("Your browser does not support ThePB's auto resize!");
-};
 var LightBox = function (content) {
          if (!(this instanceof LightBox)) {
             return new LightBox(content);
