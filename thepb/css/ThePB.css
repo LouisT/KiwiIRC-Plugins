@@ -1,31 +1,22 @@
-@import url("http://fonts.googleapis.com/css?family=Ubuntu+Condensed");
 .ThePB-IN {
  background-color: #FFF;
  outline: none;
- font-family: Trebuchet MS;
- font-family: 'Ubuntu Condensed', sans-serif;
  font-size: 14px;
  width: 165px;
  border: 2px solid #eee;
 }
 .ThePB-HO {
  background-color: #FFF;
- font-family: Trebuchet MS;
- font-family: 'Ubuntu Condensed', sans-serif;
  font-size: 14px;
  color: #6d6d6d;
  float: right;
  margin-right: 5px;
 }
 .ThePB-ER {
- font-family: Trebuchet MS;
- font-family: 'Ubuntu Condensed', sans-serif;
  font-size: 14px;
  color: red;
 }
 .ThePB-SU {
- font-family: Trebuchet MS;
- font-family: 'Ubuntu Condensed', sans-serif;
  font-size: 14px;
  color: green;
 }
@@ -62,8 +53,6 @@
 }
 .ThePB-SL select {
  background-color: #FFF;
- font-family: Trebuchet MS;
- font-family: 'Ubuntu Condensed', sans-serif;
  font-size: 14px;
  width: 165px;
  border: 2px solid #eee;
