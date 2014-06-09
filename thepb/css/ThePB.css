@@ -12,6 +12,11 @@
  float: right;
  margin-right: 5px;
 }
+.ThePB-LI {
+ background-color: #FFF;
+ font-size: 14px;
+ color: #6d6d6d;
+}
 .ThePB-ER {
  font-size: 14px;
  color: red;
@@ -94,10 +99,10 @@
  width: 100%;
  height: 100%;
  background: #000;
- filter: alpha(opacity=90);
- -moz-opacity: 0.90;
- -khtml-opacity: 0.90;
- opacity: 0.90;
+ filter: alpha(opacity=50);
+ -moz-opacity: 0.50;
+ -khtml-opacity: 0.50;
+ opacity: 0.50;
  z-index: 9998;
  display: none;
 }
