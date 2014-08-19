@@ -137,5 +137,6 @@ var control = kiwi.components.ControlInput();
 var $icon = $("<a class=\"thepb\" title=\"Upload to ThePB!\"><i class=\"fa fa-edit\"></i></a>");
 $icon.click(function () { ThePBManager.LBManager.open(); });
 control.on("command:thepb", function () { ThePBManager.LBManager.open(); });
-control.on("command:paste", function () { ThePBManager.LBManager.open(); });control.on("command:pastebin", function () { ThePBManager.LBManager.open(); });
+control.on("command:paste", function () { ThePBManager.LBManager.open(); });
+control.on("command:pastebin", function () { ThePBManager.LBManager.open(); });
 control.addPluginIcon($icon);
