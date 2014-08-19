@@ -56,7 +56,7 @@ function ThePB () {
             return new ThePB();
          };
          var self = this;
-         Object.keys(Langs).forEach(function(key){
+         _.each(_.keys(Langs),function(key){
                 $("#ThePB-LL").append($("<option>",{value:key}).text(Langs[key]));
          });
          self.LBManager = new LightBox($("#ThePB-Hidden").html());
