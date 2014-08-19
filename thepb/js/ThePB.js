@@ -1,11 +1,11 @@
 kiwi.addMediaMessageType(function(url) {
      return /^https?:\/\/((.+)\.)?thepb\.in(\/private)?\/[a-z0-9]+\/?$/i.test(url);
  },function (url) {
-     if ((exe = /^https?:\/\/(?:(?:.+)\.)?thepb\.in(?:\/private)?\/([a-z0-9]+)\/?$/i.exec(url))) {
-        var id = exe[1]+"-"+new Date().getTime(),
-        $el = $("<div id=\""+id+"\">Loading "+exe[1]+"...</div>");
+     if ((exe = /^https?:\/\/(?:(?:.+)\.)?thepb\.in(\/private)?\/([a-z0-9]+)\/?$/i.exec(url))) {
+        var id = exe[2]+"-"+new Date().getTime(),
+        $el = $("<div id=\""+id+"\">Loading "+exe[2]+"...</div>");
         $el.ready(function () {
-           $.get(url+".kiwi",function(data) {
+           $.get("https://thepb.in"+(exe[1]?exe[1]:"")+"/"+exe[2]+".kiwi",function(data) {
                 $("#"+id).parent().css({"min-width": "485px", "max-width": "95%", "max-height": "480px", overflow: "auto"}).html(data);
            });
         });
@@ -104,7 +104,7 @@ ThePB.prototype.paste = function (mode) {
          req["desc"] = $("#ThePB-DE").val();
          req["lang"] = $("select#ThePB-LL option").filter(":selected").val();
          req["priv"] = (mode?"1":"0");
-         $.post("http://thepb.in/kiwi/paste.php", req, function(data) {
+         $.post("https://thepb.in/kiwi/paste.php", req, function(data) {
              if (("error" in data)) {
                 $("#ThePB-ER").html(data.error);
               } else {
@@ -137,6 +137,5 @@ var control = kiwi.components.ControlInput();
 var $icon = $("<a class=\"thepb\" title=\"Upload to ThePB!\"><i class=\"fa fa-edit\"></i></a>");
 $icon.click(function () { ThePBManager.LBManager.open(); });
 control.on("command:thepb", function () { ThePBManager.LBManager.open(); });
-control.on("command:paste", function () { ThePBManager.LBManager.open(); });
-control.on("command:pastebin", function () { ThePBManager.LBManager.open(); });
+control.on("command:paste", function () { ThePBManager.LBManager.open(); });control.on("command:pastebin", function () { ThePBManager.LBManager.open(); });
 control.addPluginIcon($icon);

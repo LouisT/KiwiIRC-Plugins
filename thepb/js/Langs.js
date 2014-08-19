@@ -1,5 +1,5 @@
 /*
- The list of languages supported by ThePB. (http://thepb.in/)
+ The list of languages supported by ThePB. (https://thepb.in/)
 */
 var Langs = {
 	'deftext1':'Language',
