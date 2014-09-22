@@ -4,13 +4,15 @@
  font-size: 14px;
  width: 165px;
  border: 2px solid #eee;
+ padding: 3px;
 }
 .ThePB-HO {
  background-color: #FFF;
- font-size: 14px;
  color: #6d6d6d;
  float: right;
  margin-right: 5px;
+ margin-top: 14px;
+ font-size: 0.8em;
 }
 .ThePB-LI {
  background-color: #FFF;
@@ -28,8 +30,15 @@
 .ThePB-BU {
  width: 75px;
  border: 2px solid #eee;
- color: #6d6d6d;
- background: #FFF;
+ background: rgb(123, 219, 123);
+ color: rgb(53, 53, 53);
+ margin-left: 1em;
+ font-weight: bold;
+ font-size: 0.8em;
+ border-radius: 5px;
+ line-height: 1.8em;
+ padding: 5px 0;
+ margin-top: 5px;
 }
 .ThePB-BU::-moz-focus-inner {
  border: 0;
@@ -51,6 +60,9 @@
  font-size: 12px;
  font-family: consolas, monospace;
  width: 99%;
+ padding: 5px 10px;
+ box-sizing: border-box;
+ margin-top: 10px;
 }
 .ThePB-SL select:-moz-focusring {
  color: transparent;
@@ -63,6 +75,7 @@
  border: 2px solid #eee;
  outline: 1px none !important;
  color: #6d6d6d;
+ padding: 2px;
 }
 .ThePB-SL select:focus {
  border-color: #dfdfdf;

@@ -10,12 +10,12 @@ kiwi.addMediaMessageType(function(url) {
            });
         });
         return $el;
-     };
+     }
 });
 var LightBox = function (content) {
          if (!(this instanceof LightBox)) {
             return new LightBox(content);
-         };
+         }
          this.opened = false;
          this.box = document.createElement("div");
          this.box.setAttribute("id","ThePB-LB");
@@ -26,13 +26,13 @@ var LightBox = function (content) {
          $(this.box).data('LightBox',this);
          if (content) {
             this.content(content);
-         };
+         }
          return this;
-};
+}
 LightBox.prototype.content = function (content) {
          this.box.innerHTML = content;
          return this;
-};
+}
 LightBox.prototype.open = function () {
          var self = this;
          self.opened = true;
@@ -42,19 +42,19 @@ LightBox.prototype.open = function () {
          this.box.style.marginTop = -(this.box.offsetHeight/2)+"px";
          this.shadow.onclick = function () {
               self.close();
-         };
+         }
          return this;
-};
+}
 LightBox.prototype.close = function () {
          this.opened = false;
          this.box.style.display = "none";
          this.shadow.style.display = "none";
          return this;
-};
+}
 function ThePB () {
          if (!(this instanceof ThePB)) {
             return new ThePB();
-         };
+         }
          var self = this;
          _.each(_.keys(Langs),function(key){
                 $("#ThePB-LL").append($("<option>",{value:key}).text(Langs[key]));
@@ -67,34 +67,26 @@ function ThePB () {
                      $('#ThePB-LB').data('LightBox').close();
                      e.preventDefault();
                      e.stopPropagation();
-                  };
-               };
+                  }
+               }
          });
-         $("#ThePB-PR").click(function () { self.paste(1); });
-         $("#ThePB-SU").click(function () { self.paste(); });
-         $("#ThePB-CL").click(function () { self.clear(); });
+         $("#ThePB-SU").click(function () { self.paste(1); });
          $("#ThePB-LBC").click(function () { $('#ThePB-LB').data('LightBox').close(); });
          return this;
-};
+}
 ThePB.prototype.setPaste = function (content) {
          if (content) {
             $("#ThePB-TA").val(content);
-         };
-         return this;
-};
-ThePB.prototype.clear = function () {
-         if (confirm("Are you sure you want to clear your paste?")) {
-            this.reset();
          }
          return this;
-};
+}
 ThePB.prototype.reset = function () {
          $("#ThePB-ER").html("");
          $("#ThePB-TA").val("");
          $("#ThePB-PW").val("");
          $("#ThePB-DE").val("");
          return this;
-};
+}
 ThePB.prototype.paste = function (mode) {
          var self = this;
          $("#ThePB-ER").html("");
@@ -114,22 +106,23 @@ ThePB.prototype.paste = function (mode) {
                     val = area.val();
                 if (!/\s+$/.test(val)) {
                    val += " ";
-                };
+                }
                 area.val((val+data.url).trim());
-             };
+             }
          },"json").fail(function(xhr, e) {
             $("#ThePB-ER").html("There was an error with ThePB. Please try again later. (Code: "+(xhr.status||0)+")");
          });
          return this;
-};
+}
 $("#kiwi .controlbox textarea").bind("paste",function(e) {
          var self = $(this);
          setTimeout(function () {
               len = self.val().replace(/\s+$/g,"").split(/\r?\n/).length;
               if (len >= 4 && confirm("You are attempting to paste "+len+" lines. Would you like to use a pastebin instead?")) {
                  ThePBManager.setPaste(self.val()).LBManager.open();
+                 setTimeout(function(){ $("#ThePB-SU").focus(); },1);
                  self.val('');
-              };
+              }
          });
 });
 var ThePBManager = ThePB();
