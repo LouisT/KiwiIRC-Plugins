@@ -1,0 +1,53 @@
+<script type="text/javascript">
+(function(global,undefined){
+   var clientID = 'ec08fb234c609fb'; // Your Imgur Client-ID, from https://api.imgur.com/
+
+   /*
+    Inject a file input when you first load the plugin.
+    Uploading is done by `input.onchange`.
+   */
+   var ImgurInput = document.createElement('input');
+   ImgurInput.setAttribute('type','file');
+   ImgurInput.setAttribute('id','ImgurUploader');
+   ImgurInput.setAttribute('style','display:none;width:0px;height:0px;');
+   ImgurInput.onchange = function () {
+         var file = this.files[0];
+         if (!file || !file.type.match(/image.*/)) {
+            if (file) {
+               kiwi.panels().active.addMsg('Imgur Upload', 'Sorry, only image files are supported.', 'error');
+            }
+            return;
+         }
+         var fd = new FormData();
+         fd.append('image', file);
+         var xhr = new XMLHttpRequest();
+         xhr.open('POST', 'https://api.imgur.com/3/image.json');
+         xhr.onload = function () {
+             try {
+                var resp = JSON.parse(xhr.responseText);
+                if (("data" in resp && resp.data.link)) {
+                   var area = $("#kiwi .controlbox textarea"),
+                       val = area.val();
+                   if (!/\s+$/.test(val)) {
+                      val += " ";
+                   }
+                   area.val((val+resp.data.link).trim());
+                 } else {
+                   kiwi.panels().active.addMsg('Imgur Upload', 'There was an error uploading your image. '+(('error' in resp.data)?'('+resp.data.error+')':''), 'error');
+                }
+              } catch (e) {
+                kiwi.panels().active.addMsg('Imgur Upload','There was an issue uploading your image. ('+e.message+')', 'error');
+             }
+         }
+         xhr.setRequestHeader('Authorization', 'Client-ID '+clientID);
+         xhr.send(fd);
+   }
+   document.getElementsByTagName('body')[0].appendChild(ImgurInput);
+   var control = kiwi.components.ControlInput();
+   var $icon = $("<a title=\"Upload to imgur!\"><i class=\"fa fa-upload\"></i></a>");
+   $icon.click(function () {
+       document.querySelector('#ImgurUploader').click();
+   });
+   control.addPluginIcon($icon);
+})(window);
+</script>
