@@ -3,6 +3,8 @@
   Not every provider requires a callback, if they allow CORS, jQuery will load the JSON data directly.
   If you see this in the site response headers "Access-Control-Allow-Origin: *" It's good to go
   See "revision3" below. (http://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
+
+  TODO: Use YQL to add support for oEmbed APIs without callbacks and CORS?
 */
 (function(global,undefined){
    var oEmbed = {
@@ -31,14 +33,14 @@
                 $('#'+id).parent().html('<a href="'+data.thumbnail_url+'" target="_blank"><img height="150" src="'+data.thumbnail_url+'"/></a><br /><b>'+(data.title||'No title.')+'</b>');
             }
           },{
-            name: 'revision3',
+            name: 'Revision3',
             oembed: 'https://revision3.com/api/oembed/?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}',
             urls: [/https?:\/\/.*\.?revision3.com\/.*/i],
             callback: function (data, id, opts) {
                 $('#'+id).parent().html(data.html);
             }
           },{
-            name: 'vimeo',
+            name: 'Vimeo',
             oembed: 'https://vimeo.com/api/oembed.json?url={:url}&maxwidth={:maxwidth}&maxheight={:maxheight}',
             urls: [/https?:\/\/.*\.?vimeo\.com\/.*/i],
             callback: function (data, id, opts) {
@@ -48,13 +50,6 @@
             name: 'SlideShare',
             oembed: 'https://www.slideshare.net/api/oembed/2?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}&callback=?',
             urls: [/https?:\/\/.*\.?slideshare.net\/.[^\/]+\/.*/i],
-            callback: function (data, id, opts) {
-                $('#'+id).parent().html(data.html);
-            }
-          },{
-            name: 'SlideShare',
-            oembed: 'https://www.slideshare.net/api/oembed/2?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}&callback=?',
-            urls: [/https?:\/\/.*\.?slideshare.net\/[^\/]+\/.*/i],
             callback: function (data, id, opts) {
                 $('#'+id).parent().html(data.html);
             }
@@ -99,6 +94,34 @@
             urls: [/https?:\/\/.*\.?meetu(\.ps|p\.com)\/.*/i],
             callback: function (data, id, opts) {
                 $('#'+id).parent().css({'max-width': opts.maxwidth}).html(data.html);
+            }
+          },{
+            name: 'Shoudio',
+            oembed: 'https://shoudio.com/api/oembed?format=json&url={:url}&callback=?',
+            urls: [/http:\/\/shoud(\.io|io\.com)\/.*/i], // Does not support HTTPS links.
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'Cacoo',
+            oembed: 'https://cacoo.com/oembed.json?url={:url}&maxwidth={:maxwidth}&maxheight={:maxheight}',
+            urls: [/https?:\/\/cacoo\.com\/diagrams\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'dailymile',
+            oembed: 'https://api.dailymile.com/oembed?format=json&url={:url}&callback=?',
+            urls: [/https?:\/\/.*\.?dailymile\.com\/people\/[^\/]+\/entries\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'amCharts',
+            oembed: 'https://live.amcharts.com/oembed/?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}',
+            urls: [/https?:\/\/live\.amcharts\.com\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
             }
           },{
             name: 'nodei.co',
