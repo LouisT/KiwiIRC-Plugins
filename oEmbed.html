@@ -101,13 +101,6 @@
                 $('#'+id).parent().css({'max-width': opts.maxwidth}).html(data.html);
             }
           },{
-            name: 'Meetup',
-            oembed: 'https://api.meetup.com/oembed?format=json&url={:url}&maxwidth={:maxwidth}&callback=?',
-            urls: [/https?:\/\/.*\.?meetu(\.ps|p\.com)\/.*/i],
-            callback: function (data, id, opts) {
-                $('#'+id).parent().css({'max-width': opts.maxwidth}).html(data.html);
-            }
-          },{
             name: 'nodei.co',
             oembed: 'https://nodei.co/npm/{:url}',
             urls: [/https?:\/\/(?:www\.)npmjs\.com(?:\/package)?\/(.+)/i],
