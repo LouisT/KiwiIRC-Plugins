@@ -1,0 +1,172 @@
+<script>
+/*
+  Not every provider requires a callback, if they allow CORS, jQuery will load the JSON data directly.
+  If you see this in the site response headers "Access-Control-Allow-Origin: *" It's good to go
+  See "revision3" below. (http://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
+*/
+(function(global,undefined){
+   var oEmbed = {
+       maxwidth: 480,
+       maxheight: 350,
+       providers: [
+          { 
+            name: 'DeviantArt',
+            oembed: 'https://backend.deviantart.com/oembed?url={:url}&format=jsonp&callback=?',
+            urls: [/https?:\/\/.*\.?deviantart\.com\/art\/.*/i,/https?:\/\/fav\.me\/.*/i,/https?:\/\/sta\.sh\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html('<a href="'+data.url+'" target="_blank"><img height="150" src="'+data.url+'"/></a><br /><b>'+(data.title||'No title.')+'</b>');
+            }
+          },{
+            name: 'flickr',
+            oembed: 'https://www.flickr.com/services/oembed.json/?url={:url}&jsoncallback=?',
+            urls: [/https?:\/\/.*\.?flickr\.com\/photos\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html('<a href="'+data.url+'" target="_blank"><img height="150" src="'+data.url+'"/></a><br /><b>'+(data.title||'No title.')+'</b>');
+            }
+          },{
+            name: 'Instagram',
+            oembed: 'http://api.instagram.com/oembed?url={:url}&callback=?',
+            urls: [/https?:\/\/instagr(\.am|am\.com)\/p\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html('<a href="'+data.thumbnail_url+'" target="_blank"><img height="150" src="'+data.thumbnail_url+'"/></a><br /><b>'+(data.title||'No title.')+'</b>');
+            }
+          },{
+            name: 'revision3',
+            oembed: 'https://revision3.com/api/oembed/?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}',
+            urls: [/https?:\/\/.*\.?revision3.com\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'vimeo',
+            oembed: 'https://vimeo.com/api/oembed.json?url={:url}&maxwidth={:maxwidth}&maxheight={:maxheight}',
+            urls: [/https?:\/\/.*\.?vimeo\.com\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'SlideShare',
+            oembed: 'https://www.slideshare.net/api/oembed/2?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}&callback=?',
+            urls: [/https?:\/\/.*\.?slideshare.net\/.[^\/]+\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'SlideShare',
+            oembed: 'https://www.slideshare.net/api/oembed/2?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}&callback=?',
+            urls: [/https?:\/\/.*\.?slideshare.net\/[^\/]+\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'Rdio',
+            oembed: 'https://www.rdio.com/api/oembed/?format=json&url={:url}&maxwidth={:maxwidth}&maxheight={:maxheight}&callback=?',
+            urls: [/https?:\/\/.*\.?rdio\.com\/(artist|people)\/.*/i,/https?:\/\/rd\.io\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'Mixcloud',
+            oembed: 'https://www.mixcloud.com/oembed/?url={:url}&format=json&maxwidth={:maxwidth}&maxheight={:maxheight}&callback=?',
+            urls: [/https?:\/\/.*\.?mixcloud\.com\/[^/]+\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'Dailymotion',
+            oembed: 'https://www.dailymotion.com/services/oembed?format=json&url={:url}&maxwidth={:maxwidth}&maxheight={:maxheight}&callback=?',
+            urls: [/https?:\/\/.*\.?dailymotion\.com\/video\/.*/i,/https?:\/\/dai\.ly\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'Blip.tv',
+            oembed: 'https://blip.tv/oembed/?url={:url}&maxwidth={:maxwidth}&callback=?',
+            urls: [/https?:\/\/.*\.?blip\.tv\/[^\/]+\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'Sketchfab',
+            oembed: 'https://sketchfab.com/oembed?url={:url}&maxwidth={:maxwidth}&maxheight={:maxheight}',
+            urls: [/https?:\/\/.*\.?sketchfab\.com\/models\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            }
+          },{
+            name: 'Meetup',
+            oembed: 'https://api.meetup.com/oembed?format=json&url={:url}&maxwidth={:maxwidth}&callback=?',
+            urls: [/https?:\/\/.*\.?meetu(\.ps|p\.com)\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().css({'max-width': opts.maxwidth}).html(data.html);
+            }
+          },{
+            name: 'Meetup',
+            oembed: 'https://api.meetup.com/oembed?format=json&url={:url}&maxwidth={:maxwidth}&callback=?',
+            urls: [/https?:\/\/.*\.?meetu(\.ps|p\.com)\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().css({'max-width': opts.maxwidth}).html(data.html);
+            }
+          },{
+            name: 'nodei.co',
+            oembed: 'https://nodei.co/npm/{:url}',
+            urls: [/https?:\/\/(?:www\.)npmjs\.com(?:\/package)?\/(.+)/i],
+            callback: function (url, id, opts) {
+               $('#'+id).parent().html('<a href="'+url+'" target="_blank"><img src="'+url+'.png?downloads=true&downloadRank=true&stars=true"/></a>');
+            },
+            byid: true,  // Run the regex with String.match(), return the number 1 index as the URL for the oEmbed link.
+            direct: true // Don't make a request with jQuery.getJSON, just pass the 'oEmbed' URL to the callback.
+          }
+       ],
+       scan: function (url, embed) {
+             this.providers.forEach((function (parent) {
+                parent.return = false;
+                return function (obj) {
+                   if (('urls' in obj)) {
+                      obj.urls.some(function (rxp) {
+                          if (rxp.test(url)) {
+                             if (embed) {
+                                var opts = {
+                                     url: (("byid" in obj && obj.byid)?url.match(rxp)[1]:encodeURIComponent(url)),
+                                     maxwidth: parent.maxwidth,
+                                     maxheight: parent.maxheight
+                                };
+                                var oembedURL = obj.oembed.replace(/{(\\?:)([^}]+)}/g,function(m,o,k) {
+                                     return (opts[k]?opts[k]:m);
+                                });
+                                var id = (obj.name+'-'+Date.now()).replace(/[^a-z0-9-]+/i,'');
+                                $el = $('<div id="'+id+'">Loading '+obj.name+'...</div>');
+                                $el.ready(function () {
+                                   if (("direct" in obj && obj.direct)) {
+                                      setTimeout(function(){
+                                         obj.callback(oembedURL, id, opts);
+                                      },10);
+                                    } else {
+                                      $.getJSON(oembedURL,function (data) {
+                                         obj.callback(data, id, opts);
+                                      }).fail(function () {
+                                         $('#'+id).parent().html('<b>Failed to load content from '+obj.name+'!</b>');
+                                      });
+                                   }
+                                });
+                                parent.return = $el;
+                              } else {
+                                parent.return = obj.name;
+                             }
+                             return true;
+                          }
+                          return false;
+                      });
+                   }
+                }
+            })(this));
+            return this.return;
+       }
+   };
+   kiwi.addMediaMessageType(function(url) {
+        return oEmbed.scan.call(oEmbed,url);
+    },function (url) {
+        return oEmbed.scan.call(oEmbed,url,true);
+   });
+})(window);
+</script>
