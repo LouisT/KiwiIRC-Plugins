@@ -1,15 +1,31 @@
 <script>
 /*
+  oEmbed plugin for KiwiIRC - By Louis T. <https://ltdev.im>
+
   Not every provider requires a callback, if they allow CORS, jQuery will load the JSON data directly.
   If you see this in the site response headers "Access-Control-Allow-Origin: *" It's good to go
   See "revision3" below. (http://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-
-  TODO: Use YQL to add support for oEmbed APIs without callbacks and CORS?
 */
 (function(global,undefined){
    var oEmbed = {
        maxwidth: 480,
        maxheight: 350,
+       jsonp: { // Proxy settings for oEmbed APIs without callbacks or CORS.
+          /*
+             Example proxy using YQL. Theoretically, any JSON proxy should work.
+             Make sure 'parser' is set up to match results from whatever proxy you choose.
+             Not all proxies require a parser, for example: https://jsonp.nodejitsu.com/?url={:url}&callback=?
+             {:url} is replaced with the URL to the oEmbed API.
+          */ 
+          proxy: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20json%20where%20url%3D%22{:url}%22&format=json&callback=?',
+          parser: function (data) {
+             return ((data.query.results && 'json' in data.query.results)?data.query.results.json:{html:'<b>JSONP proxy failed to load content for '+this.name+'!</b>'});
+          },
+       },
+       /*
+          {:url} is replaced with the URL for your oEmbed requests.
+          {:maxwidth} and {:maxheight} are set with the values above.
+       */
        providers: [
           { 
             name: 'DeviantArt',
@@ -123,10 +139,127 @@
             callback: function (data, id, opts) {
                 $('#'+id).parent().html(data.html);
             }
+          },
+
+          /*
+            Providers that require a JSON proxy.
+            These probably don't support callbacks or CORS.
+          */
+          {
+            name: '23hq',
+            oembed: 'http://www.23hq.com/23/oembed?url={:url}&format=json',
+            urls: [/https?:\/\/.*\.?23hq\.com\/[^\/]+\/photo\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html('<a href="'+data.url+'" target="_blank"><img height="150" src="'+data.url+'"/></a><br /><b>'+(data.title||'No title.')+'</b>');
+            },
+            proxy: true,
           },{
+            name: 'Kickstarter',
+            oembed: 'https://www.kickstarter.com/services/oembed?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/.*\.?kickstarter\.com\/projects\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'Hulu',
+            oembed: 'http://www.hulu.com/api/oembed.json?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/.*\.?hulu\.com\/watch\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'CollegeHumor',
+            oembed: 'https://www.collegehumor.com/oembed.json?url={:url}',
+            urls: [/https?:\/\/.*\.?collegehumor\.com\/video\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'Clyp',
+            oembed: 'http://api.clyp.it/oembed?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/.*\.?clyp\.it(\/playlist)?\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'Screenr',
+            oembed: 'https://www.screenr.com/api/oembed.json?url={:url}',
+            urls: [/https?:\/\/.*\.?screenr\.com\/[^\/]+/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'FunnyOrDie',
+            oembed: 'http://www.funnyordie.com/oembed.json?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/.*\.?funnyordie\.com\/videos\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'TED',
+            oembed: 'http://www.ted.com/services/v1/oembed.json?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/.*\.?ted\.com\/talks\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'Official.fm',
+            oembed: 'http://www.official.fm/tracks/{:url}/oembed.json?height=75',
+            urls: [/https?:\/\/.*\.?official\.fm\/(?:tracks|playlists)\/(.+)/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+            byid: true,
+          },{
+            name: 'Dipity',
+            oembed: 'http://www.dipity.com/oembed/timeline/?format=json&url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/.*\.?dipity\.com\/[^\/]+\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'Coub',
+            oembed: 'http://coub.com/api/oembed.json?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/coub\.com\/(view|embed)\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'SpeakerDeck',
+            oembed: 'https://speakerdeck.com/oembed.json?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/speakerdeck\.com\/[^\/]+\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },{
+            name: 'Ustream',
+            oembed: 'http://www.ustream.tv/oembed?url={:url}',
+            urls: [/https?:\/\/.*\.?ustream\.(tv|com)\/.*/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
+          },
+
+          /*
+            These are not technically considered oEmbed services.
+            For example, "nodei.co" is a 3rd party image generator for NPM packages.
+          */
+          {
             name: 'nodei.co',
             oembed: 'https://nodei.co/npm/{:url}',
-            urls: [/https?:\/\/(?:www\.)npmjs\.com(?:\/package)?\/(.+)/i],
+            urls: [/https?:\/\/(?:www\.)?npmjs\.com(?:\/package)?\/([^~\/]+)/i,/https?:\/\/npm\.im\/([^~\/]+)/i],
             callback: function (url, id, opts) {
                $('#'+id).parent().html('<a href="'+url+'" target="_blank"><img src="'+url+'.png?downloads=true&downloadRank=true&stars=true"/></a>');
             },
@@ -135,31 +268,40 @@
           }
        ],
        scan: function (url, embed) {
-             this.providers.forEach((function (parent) {
+             _(this.providers).forEach((function (parent) {
                 parent.return = false;
                 return function (obj) {
                    if (('urls' in obj)) {
-                      obj.urls.some(function (rxp) {
+                      _.some(obj.urls,function (rxp) {
                           if (rxp.test(url)) {
                              if (embed) {
                                 var opts = {
-                                     url: (("byid" in obj && obj.byid)?url.match(rxp)[1]:encodeURIComponent(url)),
+                                     url: (obj.byid?url.match(rxp)[1]:encodeURIComponent(url)),
                                      maxwidth: parent.maxwidth,
                                      maxheight: parent.maxheight
-                                };
-                                var oembedURL = obj.oembed.replace(/{(\\?:)([^}]+)}/g,function(m,o,k) {
-                                     return (opts[k]?opts[k]:m);
-                                });
+                                }
                                 var id = (obj.name+'-'+Date.now()).replace(/[^a-z0-9-]+/i,'');
+                                var request = parent.formatter(obj.oembed,opts);
+                                if (obj.proxy) {
+                                   if (parent.jsonp.proxy) {
+                                      request = parent.formatter(parent.jsonp.proxy,{
+                                          url: encodeURIComponent(request),
+                                      });
+                                      opts.proxy = request;
+                                    } else {
+                                      parent.return = $('<div id="'+id+'"><b>Invalid proxy settings!</b></div>'); 
+                                      return true;
+                                   }
+                                }
                                 $el = $('<div id="'+id+'">Loading '+obj.name+'...</div>');
                                 $el.ready(function () {
-                                   if (("direct" in obj && obj.direct)) {
+                                   if (obj.direct) {
                                       setTimeout(function(){
-                                         obj.callback(oembedURL, id, opts);
+                                         obj.callback(request, id, opts);
                                       },10);
                                     } else {
-                                      $.getJSON(oembedURL,function (data) {
-                                         obj.callback(data, id, opts);
+                                      $.getJSON(request,function (data) {
+                                         obj.callback((obj.proxy&&parent.jsonp.parser?parent.jsonp.parser.call(obj, data):data), id, opts);
                                       }).fail(function () {
                                          $('#'+id).parent().html('<b>Failed to load content from '+obj.name+'!</b>');
                                       });
@@ -177,6 +319,11 @@
                 }
             })(this));
             return this.return;
+       },
+       formatter: function (str, opts) {
+            return str.replace(/{(\\?:)([^}]+)}/g,function(m,o,k) {
+                      return (opts[k]?opts[k]:m);
+                   });
        }
    };
    kiwi.addMediaMessageType(function(url) {
