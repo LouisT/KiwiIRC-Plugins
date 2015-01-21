@@ -294,6 +294,15 @@
             },
             proxy: true,
             byid: true,
+          },{
+            name: 'xkcd',
+            oembed: 'https://xkcd.com/{:url}/info.0.json',
+            urls: [/https?:\/\/xkcd\.com\/(\d+)/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html('<a href="'+data.img+'" target="_blank"><img src="'+data.img+'"/></a><br /><b>'+(data.title||'No title.')+'</b>');
+            },
+            proxy: true,
+            byid: true,
           }
        ],
        scan: function (url, embed) {
