@@ -29,7 +29,7 @@
        */
        providers: [
           /*
-            Services that provide their own oEmbed endpoints.
+            Services that provide their own oEmbed endpoints via callbacks or CORS.
           */
           { 
             name: 'DeviantArt',
@@ -312,7 +312,7 @@
                 return function (obj) {
                    if (('urls' in obj)) {
                       _.some(obj.urls,function (rxp) {
-                          if ((!('enabled' in parent.jsonp) || !parent.jsonp.enabled) && obj.proxy) {
+                          if (!parent.jsonp.enabled && obj.proxy) {
                              return true;
                           }
                           if (rxp.test(url)) {
