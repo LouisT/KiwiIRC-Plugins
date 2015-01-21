@@ -27,6 +27,9 @@
           {:maxwidth} and {:maxheight} are set with the values above.
        */
        providers: [
+          /*
+            Services that provide their own oEmbed endpoints.
+          */
           { 
             name: 'DeviantArt',
             oembed: 'https://backend.deviantart.com/oembed?url={:url}&format=jsonp&callback=?',
@@ -250,6 +253,14 @@
                 $('#'+id).parent().html(data.html);
             },
             proxy: true,
+          },{
+            name: 'Bambuser',
+            oembed: 'http://api.bambuser.com/oembed.json?url={:url}&maxwidth={:maxwidth}',
+            urls: [/https?:\/\/bambuser\.com\/v\/\d+/i,/https?:\/\/bambuser\.com\/channel\/[^\/]+\/broadcast\/\d+/i,/https?:\/\/bambuser\.com\/channel\/[^\/]+$/i],
+            callback: function (data, id, opts) {
+                $('#'+id).parent().html(data.html);
+            },
+            proxy: true,
           },
 
           /*
@@ -265,6 +276,24 @@
             },
             byid: true,  // Run the regex with String.match(), return the number 1 index as the URL for the oEmbed link.
             direct: true // Don't make a request with jQuery.getJSON, just pass the 'oEmbed' URL to the callback.
+          },{
+            name: 'IMDB',
+            oembed: 'http://www.omdbapi.com/?i={:url}&r=json&plot=full',
+            urls: [/https?:\/\/(?:.*\.)?imdb\.com\/title\/(tt(\d+))\/?/i],
+            callback: function (data, id, opts) {
+               if (data.Response === "True") {
+                  var img = 'https://images.weserv.nl/?url='+data.Poster.replace(/^https?:\/\//i,'');
+                  var html = '<div style="clear: left;"><p style="float: left; padding-right: 8px;">'+
+                             '<a href="'+img+'" target="_blank"><img src="'+img+'" height="150" border="1px" /></a>'+
+                             '</p><p><b>'+(data.Title||'No Title.')+' ('+(data.Year||'????')+') - '+(data.Genre||'')+'</b>'+
+                            '<hr />'+(data.Plot||'No plot.')+'</p></div>';
+                } else {
+                  var html = '<b>'+(data.Error||'Invalid response from omdbapi!')+'</b>';
+               }
+               $('#'+id).parent().html(html);
+            },
+            proxy: true,
+            byid: true,
           }
        ],
        scan: function (url, embed) {
@@ -278,7 +307,7 @@
                                 var opts = {
                                      url: (obj.byid?url.match(rxp)[1]:encodeURIComponent(url)),
                                      maxwidth: parent.maxwidth,
-                                     maxheight: parent.maxheight
+                                     maxheight: parent.maxheight,
                                 }
                                 var id = (obj.name+'-'+Date.now()).replace(/[^a-z0-9-]+/i,'');
                                 var request = parent.formatter(obj.oembed,opts);
