@@ -16,7 +16,8 @@
              Make sure 'parser' is set up to match results from whatever proxy you choose.
              Not all proxies require a parser, for example: https://jsonp.nodejitsu.com/?url={:url}&callback=?
              {:url} is replaced with the URL to the oEmbed API.
-          */ 
+          */
+          enabled: true, // Enable or disable proxy support.
           proxy: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20json%20where%20url%3D%22{:url}%22&format=json&callback=?',
           parser: function (data) {
              return ((data.query.results && 'json' in data.query.results)?data.query.results.json:{html:'<b>JSONP proxy failed to load content for '+this.name+'!</b>'});
@@ -311,6 +312,9 @@
                 return function (obj) {
                    if (('urls' in obj)) {
                       _.some(obj.urls,function (rxp) {
+                          if ((!('enabled' in parent.jsonp) || !parent.jsonp.enabled) && obj.proxy) {
+                             return true;
+                          }
                           if (rxp.test(url)) {
                              if (embed) {
                                 var opts = {
