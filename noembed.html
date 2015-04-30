@@ -53,7 +53,7 @@ kiwi.plugins.on('loaded', function () {
             return $el;
         });
      }).fail(function() {
-        console.log('Could not retrieve domains.json from iframely.');
+        console.log('Could not retrieve providers from noembed.');
     });
     function formatError (msg) {
              return formatter((config.errors?config.errors:'<b><i>{{:message}}</i></b>'),{message:msg});
