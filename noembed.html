@@ -1,0 +1,73 @@
+<script type="text/javascript">
+/*
+ Noembed (https://noembed.com/) plugin.
+  
+ Noembed supports a decent number of providers, you can view them
+ here: http://noembed.com/#supported-sites
+*/
+kiwi.plugins.on('loaded', function () {
+    var config = {
+        types: ['photo','video','rich'],       // Acceptable oEmbed media types.
+        WxH: [480, 270],                       // Max width and height in pixels, respectively.
+        nowrap: false,                         // Enable or disable wrapping from noembed.
+        errors: '<b><i>{{:message}}</i></b>',  // HTML to display errors.
+
+        // An array of oEmbed providers to skip, usually already supported by the client.
+        disabled: ['gist','imgur','soundcloud','spotify','twitter','youtube'],
+    };
+ 
+    /*
+      You should not need to edit below this line!
+    */
+
+    $.getJSON('https://noembed.com/providers').done(function(providers) {
+        var regexes = [];
+        _.each(providers, function (provider) {
+            if (config.disabled.indexOf(provider.name.toLowerCase()) === -1) {
+               regexes.push(provider['patterns'].join('|'));
+            }
+        });
+        kiwi.addMediaMessageType((function(regex) {
+                 return function (url) {
+                      return regex.test(url);
+                 };                                       
+        })(RegExp(regexes.join('|'),'i')),function (url) {
+            var $el = $('<span>Loading...</span>'),
+                reqopts = {url:encodeURIComponent(url),origin:config.origin,mw:config.WxH[0],mh:config.WxH[1],nw:(config.nowrap?'1':'0')},
+                requrl = 'https://noembed.com/embed?url={{:url}}&maxwidth={{:mw}}&maxheight={{:mh}}&nowrap={{:nw}}',
+                requrl = formatter(requrl,reqopts);
+            $.getJSON(requrl).done(function (data) {
+                if (data.error) { 
+                   $el.html(formatError(data.error));
+                 } else if (config.types.indexOf(data.type) > -1) {
+                   if (data.type === 'photo') {
+                      data.html = (data.media_url?'<img src="'+data.media_url+'" />':formatError('No image URL found!'));
+                   }
+                   $el.html(data.html?data.html:formatError('Could not find any content!'));
+                 } else {
+                   $el.html(formatError('Invalid data type!'));
+                }
+             }).fail(function () {
+                $el.html(formatError('Could not retrive oEmbed content, sorry!'));
+            });
+            return $el;
+        });
+     }).fail(function() {
+        console.log('Could not retrieve domains.json from iframely.');
+    });
+    function formatError (msg) {
+             return formatter((config.errors?config.errors:'<b><i>{{:message}}</i></b>'),{message:msg});
+    }
+    function formatter (str, values) {
+             return str.replace(/{{(?:\\?:)([^|}]+)(?:\|([^|]+))?}}/g,function(match, key, opt) {
+                    return (values[key]?values[key]:(opt?opt:match));
+             });
+    }
+});
+</script>
+<style>
+/*
+  This is a copy of the noembed demo CSS.
+*/
+.noembed-wrapper{display:inline-block}.noembed-embed-inner{padding:5px;overflow:hidden;border:1px solid #ddd;border-right:1px solid #bbb;border-bottom:none;background:#fff;color:#000;font-size:12px}.noembed-embed .noembed-meta-info{background:#efefef;width:100%;font-size:10px;color:#666;border:1px solid #ddd;border-top:none;border-right:1px solid #bbb;border-bottom:1px solid #bbb}.noembed-embed .noembed-meta-info td{vertical-align:middle;line-height:1em;padding-top:2px;padding-bottom:2px}.noembed-embed .noembed-meta-info td:first-child{padding-left:5px}.noembed-embed .noembed-meta-info td:last-child{padding-right:5px}.noembed-embed .noembed-meta-info a{text-decoration:none;color:#666;font-weight:700}.noembed-embed .favicon{height:16px;width:16px}.noembed-embed .favicon img{width:16px;display:inline-block;margin:0;padding:0;border:none}.noembed-gist h2{font-weight:400;font-size:1.2em;margin:0;padding:0 0 5px;border-bottom:1px solid #eee}.noembed-gist h3{font-weight:400;margin:0;padding:0;font-size:1em}.noembed-gist .gist-language{float:right;color:#999}.noembed-gist .gist-file{background:#efefef;overflow-x:auto;margin-top:5px;max-height:300px}.noembed-gist .gist-file table{font-size:1em}.noembed-gist .gist-description{font-size:1.5em;font-weight:700;margin:0;padding:5px;color:#111;overflow:hidden}.noembed-gist a{color:#111;text-decoration:underline}.noembed-gist table{width:auto;table-layout:auto;height:auto}.noembed-gist .gist-description a:hover{text-decoration:underline}.noembed-gist .gist-user{float:right}.noembed-gist .gist-file pre{margin:0;font-family:Menlo,DejaVuSansMono,monospace}.noembed-gist .gist-file table{margin:0;padding:0;border-spacing:0}.noembed-gist .gist-file td.linenos{color:#eee;background:#bbb;text-align:right;padding:5px;border-right:1px solid #aaa}.noembed-gist .gist-file td.code{padding:5px}.noembed-wikipedia{padding:5px 10px}.noembed-wikipedia p{margin:.5em 0;line-height:1.4em}.noembed-wikipedia sup{line-height:0}.noembed-wikipedia div.floatright,.noembed-wikipedia div.tright,.noembed-wikipedia table.floattright{float:right;clear:right}.noembed-wikipedia div.tright{margin:.5em 0 1.3em 1.4em}.noembed-bash{padding:10px;border:1px solid #ddd;border-right:1px solid #bbb;border-bottom:1px solid #bbb;background:#fff;overflow:hidden;font-family:Menlo,monospace}.noembed-asciiartfarts{padding:0;border:none}.noembed-asciiartfarts pre{padding:5px 10px;display:block;float:left;background:#000;color:#fff;font-weight:700;margin:0}.noembed-monoprice{padding:10px}.noembed-monoprice img{float:left;margin-right:10px;background:#efefef;border:1px solid #ddd}.noembed-monoprice h2{margin:0 0 10px;font-size:1.2em}.noembed-monoprice a{text-decoration:none}.noembed-twittercard{padding:10px}.noembed-twittercard img{float:right;margin-left:10px;background:#efefef;border:1px solid #ddd}.noembed-twittercard h2{margin:0;font-size:1.2em}.noembed-twittercard a{text-decoration:none}.noembed-twittercard p{margin:.8em 0 0;padding:0}.noembed-giantbomb p,.noembed-youtube p{margin:0;padding:0}.noembed-github{display:block}.noembed-github p{padding:5px 0;font-size:12px;margin:0 5px}.noembed-github .github-stats{float:right;font-weight:700}.noembed-github .github-addition{color:#00A000}.noembed-github .github-deletion{color:#A00000}.noembed-github .github-change{border-top:1px solid #eee;padding:5px}.noembed-github .github-file{background:#efefef;overflow-x:auto;margin:5px 0;max-height:300px;display:none}.noembed-github .github-file.visible{display:block}.noembed-github .github-file table{font-size:12px}.noembed-github .github-description{font-weight:700;margin:0;padding:5px;color:#111;overflow:hidden}.noembed-github a{color:#111;text-decoration:underline}.noembed-github table{width:auto;table-layout:auto;height:auto}.noembed-github .github-description a:hover{text-decoration:underline}.noembed-github .github-user{float:right}.noembed-github .github-file pre{margin:0;font-family:Menlo,DejaVuSansMono,monospace}.noembed-github .github-file table{margin:0;padding:0;border-spacing:0}.noembed-github .github-file td.linenos{color:#eee;background:#bbb;text-align:right;padding:5px;border-right:1px solid #aaa}.noembed-github .github-file td.code{padding:5px}.hll{background-color:#ffc}.c{color:#408080;font-style:italic}.err{border:1px solid red}.k{color:green;font-weight:700}.o{color:#666}.cm{color:#408080;font-style:italic}.cp{color:#BC7A00}.c1,.cs{color:#408080;font-style:italic}.gd{color:#A00000}.ge{font-style:italic}.gr{color:red}.gh{color:navy;font-weight:700}.gi{color:#00A000}.go{color:grey}.gp{color:navy;font-weight:700}.gs{font-weight:700}.gu{color:purple;font-weight:700}.gt{color:#0040D0}.kc,.kd,.kn{color:green;font-weight:700}.kp{color:green}.kr{color:green;font-weight:700}.kt{color:#B00040}.m{color:#666}.s{color:#BA2121}.na{color:#7D9029}.nb{color:green}.nc{color:#00F;font-weight:700}.no{color:#800}.nd{color:#A2F}.ni{color:#999;font-weight:700}.ne{color:#D2413A;font-weight:700}.nf{color:#00F}.nl{color:#A0A000}.nn{color:#00F;font-weight:700}.nt{color:green;font-weight:700}.nv{color:#19177C}.ow{color:#A2F;font-weight:700}.w{color:#bbb}.mf,.mh,.mi,.mo{color:#666}.sb,.sc{color:#BA2121}.sd{color:#BA2121;font-style:italic}.s2{color:#BA2121}.se{color:#B62;font-weight:700}.sh{color:#BA2121}.si{color:#B68;font-weight:700}.sx{color:green}.sr{color:#B68}.s1{color:#BA2121}.ss{color:#19177C}.bp{color:green}.vc,.vg,.vi{color:#19177C}.il{color:#666}.noembed-spotify{background:#373737;color:#999;font-size:1.2em;padding:10px;max-width:500px;border:none}.noembed-spotify a{color:#B3B3B3;text-decoration:underline}.noembed-spotify span.spotify-title{font-size:1.5em;display:block}.noembed-spotify span.spotify-title a{color:#fff;text-decoration:none}.noembed-spotify img{float:left;margin-right:10px}.noembed-beeradvocate table td{font-size:11px}.noembed-beeradvocate span.BAscore_big{font-size:22px;color:#c00;font-weight:700}.noembed-imdb{padding:10px}.noembed-imdb img{float:left;margin-right:10px;background:#efefef;border:1px solid #ddd}.noembed-imdb h2{margin:0;font-size:1.2em}.noembed-imdb a{text-decoration:none}.noembed-imdb ul.imdb-metadata{overflow:hidden;padding:0;margin:.2em 0 0}.noembed-imdb ul.imdb-metadata li{display:inline-block;padding:0;margin:0 5px 0 0;color:#bbb;font-weight:700;font-size:.8em}.noembed-imdb p.imdb-overview{margin:.8em 0 0;padding:0}.noembed-twitter{padding:0;max-width:500px;font-size:16px}.noembed-twitter a{text-decoration:none}.noembed-twitter a:hover{text-decoration:underline}.noembed-twitter .tweet_main{padding:10px}.noembed-twitter div.tweet_image img{display:block}.noembed-twitter div.tweet_image{float:left;margin-right:5px}.noembed-twitter div.tweet_text{clear:both;padding:.5em 0}.noembed-twitter .tweet_screen_name{font-weight:700;color:#000}.noembed-twitter .tweet_real_name{font-weight:400;font-size:12px;color:#999}.noembed-twitter div.tweet_info,.noembed-twitter div.tweet_info a{font-size:12px;color:#999}.noembed-twitter div.tweet_info div{display:inline}.noembed-amazon{padding:10px}.noembed-amazon img{float:left;margin-right:10px;background:#efefef;border:1px solid #ddd}.noembed-amazon h2{margin:0;font-size:1.2em}.noembed-amazon a{text-decoration:none}.noembed-amazon ul{overflow:hidden;padding:0;margin:.2em 0 0}.noembed-amazon ul li{display:inline-block;padding:0;margin:0 5px 0 0;color:#bbb;font-weight:700;font-size:.8em}.noembed-amazon p{margin:.8em 0 0;padding:0}.noembed-urbandictionary{padding:10px}.noembed-urbandictionary h2{margin:0 0 5px}
+</style>
