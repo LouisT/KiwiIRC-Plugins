@@ -33,7 +33,7 @@ kiwi.plugins.on('loaded', function () {
                  };                                       
         })(RegExp(regexes.join('|'),'i')),function (url) {
             var $el = $('<span>Loading...</span>'),
-                reqopts = {url:encodeURIComponent(url),origin:config.origin,mw:config.WxH[0],mh:config.WxH[1],nw:(config.nowrap?'1':'0')},
+                reqopts = {url:encodeURIComponent(url),mw:config.WxH[0],mh:config.WxH[1],nw:(config.nowrap?'1':'0')},
                 requrl = 'https://noembed.com/embed?url={{:url}}&maxwidth={{:mw}}&maxheight={{:mh}}&nowrap={{:nw}}',
                 requrl = formatter(requrl,reqopts);
             $.getJSON(requrl).done(function (data) {
