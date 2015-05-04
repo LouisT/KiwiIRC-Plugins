@@ -86,7 +86,7 @@ kiwi.URLShortener = {
                                   $inp.val($inp.val()+' '+resp.id+' ');
                                   $list.hide();
                                 } else {
-                                  kiwi.panels().active.addMsg('*URL Shortener*', resp.message, 'error');
+                                  kiwi.panels().active.addMsg('URL Shortener', resp.message, 'error');
                                }
                                $self.toggleClass('fa-spinner fa-check fa-spin');
                            });
