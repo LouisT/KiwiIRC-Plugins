@@ -47,7 +47,7 @@ kiwi.URLShortener = {
 </div>
 </script>
 <script>
-(function() {
+(function () {
     'use strict';
     if (!kiwi.URLShortener || !kiwi.URLShortener.apikey) {
        return console.log('Missing apikey for URL Shortener.');
@@ -59,36 +59,40 @@ kiwi.URLShortener = {
                 gapi.client.load('urlshortener', 'v1', function () {
                     var $list = $($('#tmpl_urlshortener').html());
                     var $icon = $('<a title="URL Shortener"><i class="fa fa-link"></i></a>');
-                    $icon.on('click', function(event) {
+                    $icon.on('click', function (event) {
                         event.stopPropagation();
                         $('.urlshorten').val('');
                         $list.appendTo($('#kiwi')).show().css({ bottom: ($('.controlbox').outerHeight()) + 'px', right: 0 });
                     });
-                    $list.on('click', '.urlshorten', function(event) {
+                    $list.on('click keypress', '.urlshorten', function (event) {
                         event.stopPropagation();
+                        if (event.type === "keypress" && event.keyCode === 13) {
+                           $('.urlsubmit').click();
+                        }
                     });
-                    $list.on('click', '.urlsubmit', function(event) {
+                    $list.on('click', '.urlsubmit', function (event) {
                         event.stopPropagation();
-                        var url = $('.urlshorten').val();
+                        var $self = $(this),
+                            url = $('.urlshorten').val();
                         if (!url || (0 === url.length)) {
-                           kiwi.panels().active.addMsg('URL Shortener', 'You must supply an URL!', 'error');
+                           kiwi.panels().active.addMsg('URL Shortener', 'You must supply a valid URL!', 'error');
                          } else {
-                           $('.urlsubmit').toggleClass('fa-spinner fa-check fa-spin');
+                           $self.toggleClass('fa-spinner fa-check fa-spin');
                            gapi.client.urlshortener.url.insert({
                                'resource': { 'longUrl' : url },
                            }).execute(function (resp) {
                                if (!resp.error) {
                                   var $inp = $('.controlbox .inp');
-                                  $inp.val($inp.val()+resp.id+' ');
+                                  $inp.val($inp.val()+' '+resp.id+' ');
                                   $list.hide();
                                 } else {
-                                  kiwi.panels().active.addMsg('URL Shortener', resp.message, 'error');
+                                  kiwi.panels().active.addMsg('*URL Shortener*', resp.message, 'error');
                                }
-                               $('.urlsubmit').toggleClass('fa-spinner fa-check fa-spin');
+                               $self.toggleClass('fa-spinner fa-check fa-spin');
                            });
                         }
                     });
-                    $(document).on('click', function(event) {
+                    $(document).on('click', function (event) {
                         /// XXX: Need a proper fix for right clicks.
                         if ((event.target||event.srcElement).id !== 'URLShortener') {
                            $list.hide();
@@ -97,14 +101,14 @@ kiwi.URLShortener = {
                     kiwi.addMediaMessageType(function (url) {
                          return /https?:\/\/goo\.gl\/([a-z0-9]+)/i.test(url);
                     },function (url) {
-                         var $el = $('<span>Getting long url..</span>');
+                         var $el = $('<i>Requesting long url...</i>');
                          gapi.client.urlshortener.url.get({
                              'shortUrl' : url,
                          }).execute(function (resp) {
                              if (!resp.error) {
                                 $el.replaceWith('<a href="'+resp.id+'">'+resp.longUrl+'</a>');
                               } else {
-                                $el.replaceWith('<span><b><i>'+resp.message+'</i></b></span>');
+                                $el.replaceWith('<span><b><i>Error: '+resp.message+'</i></b></span>');
                              }
                          });
                          return $el;
