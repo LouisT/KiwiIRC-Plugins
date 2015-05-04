@@ -1,0 +1,119 @@
+<script>
+/*
+  https://goog.gl/ URL Shortener (1,000,000 requests a day)
+  
+  For more information on the goo.gl API:
+  https://developers.google.com/url-shortener/
+ 
+  How to get an API key:
+  https://developers.google.com/url-shortener/v1/getting_started#APIKey
+*/
+kiwi.URLShortener = {
+  apikey: 'AIzaSyBy_zU2CVQ6zsJst5Y0yQE32tb4N10Srik'
+};
+</script>
+<style>
+    #kiwi .url-shortener {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        position: absolute;
+        display: block;
+        z-index: 1000;
+        background: #3c3b37;
+        padding: 5px;
+        width: 460px;
+        overflow: hidden;
+        margin-right: 10px;
+    }
+    #kiwi .url-shortener .urlshorten {
+        width: 100%
+    }
+    #kiwi .url-shortener .urlwrap {
+        display: block;
+        overflow: hidden;
+        margin-right: 10px;
+    }
+    #kiwi .url-shortener .urlsubmit {
+        padding-left: 5px;
+        font-color: #fff;
+        font-size: 25px;
+        float: right;
+    }
+</style>
+<script type="text/html" id="tmpl_urlshortener">
+<div class="url-shortener">
+ <i class="urlsubmit fa fa-check"></i>
+ <span class="urlwrap"><input class="urlshorten" id="URLShortener" /></span>
+</div>
+</script>
+<script>
+(function() {
+    'use strict';
+    if (!kiwi.URLShortener || !kiwi.URLShortener.apikey) {
+       return console.log('Missing apikey for URL Shortener.');
+    }
+    $.getScript('https://apis.google.com/js/client.js', function () {
+        (function checkIfLoaded () {
+            if (gapi.client) {
+                gapi.client.setApiKey(kiwi.URLShortener.apikey);
+                gapi.client.load('urlshortener', 'v1', function () {
+                    var $list = $($('#tmpl_urlshortener').html());
+                    var $icon = $('<a title="URL Shortener"><i class="fa fa-link"></i></a>');
+                    $icon.on('click', function(event) {
+                        event.stopPropagation();
+                        $('.urlshorten').val('');
+                        $list.appendTo($('#kiwi')).show().css({ bottom: ($('.controlbox').outerHeight()) + 'px', right: 0 });
+                    });
+                    $list.on('click', '.urlshorten', function(event) {
+                        event.stopPropagation();
+                    });
+                    $list.on('click', '.urlsubmit', function(event) {
+                        event.stopPropagation();
+                        var url = $('.urlshorten').val();
+                        if (!url || (0 === url.length)) {
+                           kiwi.panels().active.addMsg('URL Shortener', 'You must supply an URL!', 'error');
+                         } else {
+                           $('.urlsubmit').toggleClass('fa-spinner fa-check fa-spin');
+                           gapi.client.urlshortener.url.insert({
+                               'resource': { 'longUrl' : url },
+                           }).execute(function (resp) {
+                               if (!resp.error) {
+                                  var $inp = $('.controlbox .inp');
+                                  $inp.val($inp.val()+resp.id+' ');
+                                  $list.hide();
+                                } else {
+                                  kiwi.panels().active.addMsg('URL Shortener', resp.message, 'error');
+                               }
+                               $('.urlsubmit').toggleClass('fa-spinner fa-check fa-spin');
+                           });
+                        }
+                    });
+                    $(document).on('click', function(event) {
+                        /// XXX: Need a proper fix for right clicks.
+                        if ((event.target||event.srcElement).id !== 'URLShortener') {
+                           $list.hide();
+                        }
+                    });
+                    kiwi.addMediaMessageType(function (url) {
+                         return /https?:\/\/goo\.gl\/([a-z0-9]+)/i.test(url);
+                    },function (url) {
+                         var $el = $('<span>Getting long url..</span>');
+                         gapi.client.urlshortener.url.get({
+                             'shortUrl' : url,
+                         }).execute(function (resp) {
+                             if (!resp.error) {
+                                $el.replaceWith('<a href="'+resp.id+'">'+resp.longUrl+'</a>');
+                              } else {
+                                $el.replaceWith('<span><b><i>'+resp.message+'</i></b></span>');
+                             }
+                         });
+                         return $el;
+                    });
+                    var control = kiwi.components.ControlInput();
+                    control.addPluginIcon($icon);
+                });
+            } else window.setTimeout(checkIfLoaded, 10);
+        })();
+    });
+})();
+</script>
