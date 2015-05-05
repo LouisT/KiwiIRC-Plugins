@@ -78,18 +78,22 @@ kiwi.URLShortener = {
                            kiwi.panels().active.addMsg('URL Shortener', 'You must supply a valid URL!', 'error');
                          } else {
                            $self.toggleClass('fa-spinner fa-check fa-spin');
+                           var $inp = $('.controlbox .inp');
+                           $inp.attr('disabled', true);
                            gapi.client.urlshortener.url.insert({
                                'resource': { 'longUrl' : url },
-                           }).execute(function (resp) {
-                               if (!resp.error) {
-                                  var $inp = $('.controlbox .inp');
-                                  $inp.val($inp.val()+' '+resp.id+' ');
-                                  $list.hide();
-                                } else {
-                                  kiwi.panels().active.addMsg('URL Shortener', resp.message, 'error');
+                           }).execute((function ($inp) {
+                               return function (resp) {
+                                   $inp.attr('disabled', false);
+                                   if (!resp.error) {
+                                      $inp.val($inp.val()+' '+resp.id+' ');
+                                      $list.hide();
+                                    } else {
+                                      kiwi.panels().active.addMsg('URL Shortener', resp.message, 'error');
+                                   }
+                                   $self.toggleClass('fa-spinner fa-check fa-spin');
                                }
-                               $self.toggleClass('fa-spinner fa-check fa-spin');
-                           });
+                           })($inp));
                         }
                     });
                     $(document).on('click', function (event) {
