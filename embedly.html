@@ -13,18 +13,18 @@ window["Embedly"] = {
 
     add: function (arr) {
          var regexes = []
-         arr.forEach(function (obj, idx) {
+         _.each(arr, function (obj, idx) {
              if (window["Embedly"].types.indexOf(obj.type) !== -1) {
                 regexes = regexes.concat(obj.regex);
              };
          });
          if (regexes.length >= 1) {
-            kiwi.addMediaMessageType((function(obj) {
+            $.embedly.defaults.key = window["Embedly"].key;
+            kiwi.addMediaMessageType((function(reg) {
                  return function (url) {
-                      $.embedly.defaults.key = obj.key;
-                      return obj.reg.test(url);
+                      return reg.test(url);
                  };                                       
-             })({key:window["Embedly"].key,reg:RegExp('^('+regexes.join("|")+')$',"i")}),function (url) {
+             })(RegExp('^('+regexes.join("|")+')$',"i")),function (url) {
                  var $el = $("<span>");
                  $.embedly.oembed(url,{query:{maxwidth:480,maxHeight:270}}).progress(function(data){
                        if (data.type !== "error") {
