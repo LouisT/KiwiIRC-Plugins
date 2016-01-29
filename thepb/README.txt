@@ -1,3 +1,5 @@
+# This plugin is DEPRECATED; Please see [KiwiIRC-ThePasteBin](https://github.com/LouisT/KiwiIRC-ThePasteBin).
+
 This is a plugin for TheP(aste)B.in (http://thepb.in/) by Louis T.
 
 To compress everything into a single file, run: node build.js
