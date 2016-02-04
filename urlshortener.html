@@ -8,8 +8,13 @@
   How to get an API key:
   https://developers.google.com/url-shortener/v1/getting_started#APIKey
 */
-kiwi.URLShortener = {
-  apikey: 'AIzaSyBy_zU2CVQ6zsJst5Y0yQE32tb4N10Srik'
+window['URLShortener'] = {
+  // Your goo.gl API key.
+  apikey: '',
+  // Ask to shorten links longer than this threshold.
+  threshold: 100,
+  // The regex to test possible URLs against.
+  regex: /^(https?|s?ftp):\/\//i
 };
 </script>
 <style>
@@ -43,19 +48,19 @@ kiwi.URLShortener = {
 <script type="text/html" id="tmpl_urlshortener">
 <div class="url-shortener">
  <i class="urlsubmit fa fa-check"></i>
- <span class="urlwrap"><input class="urlshorten" id="URLShortener" /></span>
+ <span class="urlwrap"><input placeholder="URL to shorten." class="urlshorten" id="URLShortener" /></span>
 </div>
 </script>
 <script>
 (function () {
     'use strict';
-    if (!kiwi.URLShortener || !kiwi.URLShortener.apikey) {
+    if (!window['URLShortener'] || !window['URLShortener'].apikey) {
        return console.log('Missing apikey for URL Shortener.');
     }
     $.getScript('https://apis.google.com/js/client.js', function () {
         (function checkIfLoaded () {
             if (gapi.client) {
-                gapi.client.setApiKey(kiwi.URLShortener.apikey);
+                gapi.client.setApiKey(window['URLShortener'].apikey);
                 gapi.client.load('urlshortener', 'v1', function () {
                     var $list = $($('#tmpl_urlshortener').html());
                     var $icon = $('<a title="URL Shortener"><i class="fa fa-link"></i></a>');
@@ -70,41 +75,38 @@ kiwi.URLShortener = {
                            $('.urlsubmit').click();
                         }
                     });
+                    $('#kiwi .controlbox textarea').bind('paste',function(e) {
+                        var self = $(this);
+                        setTimeout(function () {
+                            var params = self.val().split(' ');
+                            _.each(params, function (param, idx) {
+                                if (window['URLShortener'].regex.test(param) && param.length >= window['URLShortener'].threshold) {
+                                   if (confirm('A long URL was detected, shorten it with goo.gl?')) {
+                                      googl(param, null, params, idx);
+                                   }
+                                }
+                           })
+                        },0)
+                    });
                     $list.on('click', '.urlsubmit', function (event) {
                         event.stopPropagation();
                         var $self = $(this),
                             url = $('.urlshorten').val();
-                        if (!url || (0 === url.length)) {
+                        if (!window['URLShortener'].regex.test(url)) {
                            kiwi.panels().active.addMsg('URL Shortener', 'You must supply a valid URL!', 'error');
                          } else {
                            $self.toggleClass('fa-spinner fa-check fa-spin');
-                           var $inp = $('.controlbox .inp');
-                           $inp.attr('disabled', true);
-                           gapi.client.urlshortener.url.insert({
-                               'resource': { 'longUrl' : url },
-                           }).execute((function ($inp) {
-                               return function (resp) {
-                                   $inp.attr('disabled', false);
-                                   if (!resp.error) {
-                                      $inp.val($inp.val()+' '+resp.id+' ');
-                                      $list.hide();
-                                    } else {
-                                      kiwi.panels().active.addMsg('URL Shortener', resp.message, 'error');
-                                   }
-                                   $self.toggleClass('fa-spinner fa-check fa-spin');
-                               }
-                           })($inp));
+                           googl(url, $self);
                         }
                     });
                     $(document).on('click', function (event) {
-                        /// XXX: Need a proper fix for right clicks.
                         if ((event.target||event.srcElement).id !== 'URLShortener') {
                            $list.hide();
                         }
                     });
                     kiwi.addMediaMessageType(function (url) {
                          return /https?:\/\/goo\.gl\/([a-z0-9]+)/i.test(url);
-                    },function (url) {
+                    }, function (url) {
                          var $el = $('<i>Requesting long url...</i>');
                          gapi.client.urlshortener.url.get({
                              'shortUrl' : url,
@@ -119,6 +121,27 @@ kiwi.URLShortener = {
                     });
                     var control = kiwi.components.ControlInput();
                     control.addPluginIcon($icon);
+                    function googl (url, elm, params, idx) {
+                             var area = $('#kiwi .controlbox textarea');
+                             area.prop('readonly', true);
+                             gapi.client.urlshortener.url.insert({
+                                  'resource': { 'longUrl' : url },
+                             }).execute(function (resp) {
+                                 area.prop('readonly', false);
+                                 if (!resp.error) {
+                                    if (params && idx) {
+                                       params[idx] = resp.id;
+                                    }  
+                                    area.val((params?params.join(' '):area.val()+' '+resp.id));
+                                    $list.hide();
+                                  } else {
+                                    kiwi.panels().active.addMsg('URL Shortener', resp.message, 'error');
+                                 }
+                                 if (elm) {
+                                    elm.toggleClass('fa-spinner fa-check fa-spin');
+                                 }
+                             });
+                    }
                 });
             } else window.setTimeout(checkIfLoaded, 10);
         })();
