@@ -1,0 +1,21 @@
+<!--
+   Insert favicon images before external urls.
+-->
+<style>
+ #kiwi img.favicon {
+   vertical-align: middle;
+   padding-right: 2px;
+ }
+</style>
+<script>
+kiwi.events.on('message:display', function (event, data) { 
+       var msg = $('<output>'+data.message.msg+'</output>');
+       msg.find('a.link_ext').each(function (elm) {
+           var domain;
+           if ((domain = $(this).attr('href').match(/:\/\/((?:www[0-9]?\.)?(?:.[^/:]+))/i))) {
+              $(this).before('<img class="favicon" src="https://www.google.com/s2/favicons?domain='+domain[1]+'" title="'+domain[1]+'" />');
+           }
+       });
+       data.message.msg = msg.html();
+});
+</script>
