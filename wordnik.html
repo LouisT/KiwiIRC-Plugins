@@ -1,0 +1,130 @@
+<script>
+/*
+  Dictionary plugin, using Wordnik.
+  Double click any word to define.
+
+  For more information on the Wordnik API:
+  http://developer.wordnik.com/
+*/
+window['Wordnik'] = {
+  // Your Wordnik API key.
+  apikey: '',
+};
+</script>
+<style>
+    #kiwi .wordnik_definition {
+        color: white;
+        position: absolute;
+        background: #3c3b37;
+        padding: 5px;
+        width: 25%;
+        height: 10%;
+        min-width: 300px;
+        min-height: 65px;
+        overflow-y: scroll;
+        border-top-left-radius: 8px;
+        z-index: 1000;
+    }
+    #kiwi .wordnik_definition .options {
+        cursor: pointer;
+        float: right;
+        padding-right: 5px;
+    }
+    #kiwi .wordnik_definition a,
+    #kiwi .wordnik_definition a:link,
+    #kiwi .wordnik_definition a:visited,
+    #kiwi .wordnik_definition a:active {
+        text-transform: capitalize;
+        color: rgba(255, 255, 255, .85);
+        outline: none;
+    }
+    #kiwi .wordnik_definition a:hover {
+        text-decoration: none;
+    }
+</style>
+<script type="text/html" id="tmpl_definition">
+ <div class="wordnik_definition"></div>
+</script>
+<script>
+(function (global, undefined) {
+    var $defbox = $($('#tmpl_definition').html()).hide(),
+        WordnikAudio = new Audio();
+    $defbox.appendTo($('#kiwi'));
+    $(window).resize(function () {
+        $defbox.hide();
+    });
+    function Wordnik (word, mode) {
+             var url = formatter('https://api.wordnik.com/v4/word.json/{{:word}}/{{:path|definitions}}?api_key={{:apikey}}&{{:query}}',{
+                 word: String(word).toLowerCase(),
+                 path: (mode?mode:'definitions'),
+                 apikey: window['Wordnik'].apikey,
+                 query:  'limit=1&includeRelated=true&useCanonical=false&includeTags=false'
+             }); 
+             $.ajax({ url: url, dataType : 'json' }).done(function (data) {
+                 var data = (Array.isArray(data)?data[0]:data);
+                 return (mode!=='audio'?Defined(data, word):playAudio(data, word));
+              }).fail(function (xhr, err) {
+                 kiwi.panels().active.addMsg('Wordnik', 'Error connecting: '+(err||'UNKNOWN')+' - Please try again later.', 'error');
+             });
+    }
+    function Defined (data, word) {
+             if (data === Object(data) && !!Object.keys(data).length) {
+                $('.wordnik_definition').html([
+                   '<a href="https://wordnik.com/words/',data.word,'" target="_blank" class="word">',data.word,'</a>',
+                   '<i class="close options fa fa-times"></i><i class="listen options fa fa-headphones"></i>',
+                   '<i class="share options fa fa-share"></i><hr /><p class="def">',data.text.replace(/\s{2,}/g,' '),'</p>'
+                ].join(''));
+                $('.wordnik_definition .listen').click(function () {
+                    if (!WordnikAudio._word || WordnikAudio._word !== data.word) {
+                       Wordnik(data.word, 'audio');
+                     } else {
+                       WordnikAudio.play();
+                    }
+                });
+                $('.wordnik_definition .share').click(function () {
+                    var active = kiwi.panels().active;
+                    if (active.isChannel() || active.isQuery()) {
+                       var cmd = ['/msg ', active.attributes.name, ' [ https://wordnik.com/words/',data.word,'#define ] ',
+                                  data.word.replace(/^./, data.word[0].toUpperCase()), ': ', data.text].join('');
+                       kiwi.components.ControlInput().run(cmd);
+                    }
+                });
+              } else {
+                $('.wordnik_definition').html([
+                   '<a href="https://wordnik.com/words/',word,'#define" target="_blank">',word,'</a>',
+                   '<i class="close options fa fa-times"></i><hr /><p class="def">No definition found.</p>'
+                ].join(''));
+             }
+             $('.wordnik_definition .close').click(function () {
+                 $defbox.hide();
+                 $('.wordnik_definition').html('');
+             });
+             $defbox.show().css({bottom: ($('.controlbox').outerHeight())+'px', right: 0});
+    }
+    function playAudio (data, word) {
+             if (data === Object(data) && !!Object.keys(data).length && data.fileUrl) {
+                WordnikAudio._word = word;
+                WordnikAudio.src = data.fileUrl;
+                WordnikAudio.play();
+              } else {
+                $('.wordnik_definition .listen').unbind('click').css('color','red');
+             }
+    }
+    function formatter (str, values) {
+             return str.replace(/{{(?:\\?:)([^|}]+)(?:\|([^|}]+)?)?}}/g,function(match, key, opt) {
+                 return (values[key]?values[key]:(opt?opt:match));
+             });
+    }
+    $(document).dblclick(function(e) {
+        var text = String((function (w, d) {
+            return (w.getSelection?w.getSelection():(d.getSelection?d.getSelection():(d.selection?d.selection.createRange().text:'')));
+        })(window, document)).toLowerCase();
+        if (/[a-z]/i.test(text) && $('.wordnik_definition .word').text() !== text) {
+           (function (w, d) {
+               return (w.getSelection().empty?w.getSelection().empty():(w.getSelection().removeAllRanges?w.getSelection().removeAllRanges():(d.selection?d.selection.empty():false)));
+           })(window, document);
+           Wordnik(text);
+        }
+    });
+})(window);
+</script>
