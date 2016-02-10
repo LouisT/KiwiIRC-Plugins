@@ -10,13 +10,13 @@
        var queue = [],
            speaking = false,
            ttsstate = false;
-       kiwi.events.on('message:new', function (event, data) {
-           if (/^(action|message|notice)$/i.test(data.message.type) && ttsstate) {
+       kiwi.events.on('message:display', function (event, data) {
+           if (/^(action|privmsg|notice)$/i.test(data.message.type) && ttsstate) {
               var type = data.message.type;
-              queue.push([data.message.nick,
+              queue.push([data.message.nick.replace(/^\[|\]$/gi,''),
                           (/^#/.test(data.message.target)?'in '+data.message.target:''),
                           (type==='action'?'actioned':(type==='notice'?'noticed':'said')),
-                          data.message.msg
+                          data.message.unparsed_msg
                          ].join(''));
               speak();
            }
