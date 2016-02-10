@@ -17,7 +17,7 @@
                           (/^#/.test(data.message.target)?'in '+data.message.target:''),
                           (type==='action'?'actioned':(type==='notice'?'noticed':'said'))+',',
                           data.message.unparsed_msg
-                         ].join(''));
+                         ].join(' '));
               speak();
            }
        });
