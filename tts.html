@@ -1,0 +1,44 @@
+<script>
+/*
+  Basic text to speech using speechSynthesis.
+  Browser support: http://caniuse.com/#feat=speech-synthesis
+ 
+  You can enable firefox (v31+) in 'about:config' with media.webspeech.synth.enabled
+*/
+(function (global, undefined) {
+    if ('speechSynthesis' in global) {
+       var queue = [],
+           speaking = false,
+           ttsstate = false;
+       kiwi.events.on('message:new', function (event, data) {
+           if (/^(action|message|notice)$/i.test(data.message.type) && ttsstate) {
+              var type = data.message.type;
+              queue.push([data.message.nick,
+                          (/^#/.test(data.message.target)?'in '+data.message.target:''),
+                          (type==='action'?'actioned':(type==='notice'?'noticed':'said')),
+                          data.message.msg
+                         ].join(''));
+              speak();
+           }
+       });
+       function speak () {
+                if (!speaking) {
+                   var speaking = new SpeechSynthesisUtterance(queue.shift());
+                   speaking.lang = (navigator.languages ? navigator.languages[0] : (navigator.language || navigator.userLanguage));
+                   speaking.onend = function () {
+                       speaking = false;
+                       if (queue.length >= 1) {
+                          setTimeout(speak,250);
+                       }
+                   }
+                   global.speechSynthesis.speak(speaking);
+                }
+       }
+       $('#kiwi .app_tools .main').prepend('<li id="tts-toggle"><i class="fa fa-headphones" title="Toggle Text-To-Speech">&nbsp;</i></li>');
+       $(document).on('click','#tts-toggle',function () {
+              ttsstate = (ttsstate?false:true);
+              $('#tts-toggle').css('color',(ttsstate?'#88B555':''));
+       });
+    }
+})(window);
+</script>
