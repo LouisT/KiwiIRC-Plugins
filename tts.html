@@ -9,15 +9,18 @@
     if ('speechSynthesis' in global) {
        var queue = [],
            speaking = false,
-           ttsstate = false;
+           ttsstate = false,
+           last = [null, 0];
        kiwi.events.on('message:display', function (event, data) {
            if (/^(action|privmsg|notice)$/i.test(data.message.type) && ttsstate) {
-              var type = data.message.type;
-              queue.push([data.message.nick.replace(/^\[|\]$/gi,''),
-                          (/^#/.test(data.message.target)?'in '+data.message.target:''),
-                          (type==='action'?'actioned':(type==='notice'?'noticed':'said'))+',',
-                          data.message.unparsed_msg
-                         ].join(' '));
+              var type = data.message.type, target = '';
+              if (last[0] !== data.message.nick || last[1] <= ~~((Date.now()/1000)-20)) {
+                  target = [data.message.nick.replace(/^\[|\]$/gi,''),
+                            (/^#/.test(data.message.chan)?'in '+data.message.chan:''),
+                            (type==='action'?'actioned':(type==='notice'?'noticed':'said'))+','].join(' ');
+              }
+              queue.push(target+' '+data.message.unparsed_msg);
+              last = [data.message.nick, ~~(Date.now()/1000)];
               speak();
            }
        });
