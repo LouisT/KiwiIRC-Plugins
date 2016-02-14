@@ -1,0 +1,190 @@
+<script>
+/*
+  YouTube Search Plugin
+  Get an API key from: https://developers.google.com/youtube/v3/getting-started
+*/
+YouTubeSearch = {
+    // Your YouTube API key.
+    apikey: '',
+    // Autocomplete in the search input.
+    autocomplete: {
+        enabled: true,
+        // How fast to update the suggestions.
+        speed: 500,
+    },
+}
+</script>
+<style>
+    #kiwi .yts-wrapper {
+        color: white;
+        position: absolute;
+        background: #3c3b37;
+        padding: 5px;
+        width: 35%;
+        height: 45%;
+        min-width: 350px;
+        min-height: 300px;
+        overflow-y: scroll;
+        border-top-left-radius: 8px;
+    }
+    #kiwi .yts-wrapper .close {
+        float: right;
+    }
+    #kiwi .yts-wrapper .options {
+        cursor: pointer;
+        padding: 5px;
+    }
+    #kiwi .yts-wrapper .options:hover {
+        color: #88C56A;
+    }
+    #kiwi .yts-wrapper .yts {
+        width: 50%;
+    }
+    #kiwi .yts-wrapper hr {
+        margin: 5px;
+    }
+    #kiwi .yts-wrapper .break {
+        margin: 0;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        color: black;
+    }
+    #kiwi .yts-wrapper .list {
+        padding-bottom: 5px;
+    }
+    #kiwi .yts-wrapper .list img {
+        float: left;
+        margin-right: 10px;
+        width: 100px;
+        height: 100px;
+    }
+    #kiwi .yts-wrapper .list .share {
+        float: right;
+        display: inline-block;
+        padding-right: 5px;
+    }
+    #kiwi .yts-wrapper .list h4 {
+        margin-bottom: 0px;
+        font-size: 18px;
+        width: 50%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+    #kiwi .yts-wrapper .date {
+        font-size: 10px;
+        float: right;
+        margin-right: 10px;
+    }
+    #kiwi .yts-wrapper .list div {
+        width: 100%;
+        display: inline-block;
+    }
+</style>
+<script src="//apis.google.com/js/client.js"></script>
+<script>
+(function (global, undefined) {
+    (function hasGapi (gapiCounter) {
+        if (gapiCounter++ >= 100) {
+           console.log('Failed to load gapi! "YTS" plugin nonfunctional.');
+        } else if (global['gapi'] && global['gapi'].client) {
+           var $ytsbox = $($('#tmpl_youtubesearch').html()).hide().appendTo($('#kiwi'));
+           global['gapi'].client.setApiKey(global['YouTubeSearch'].apikey);
+           global['gapi'].client.load("youtube", "v3", function() {
+               var control = kiwi.components.ControlInput(),
+                   $icon = $('<a class="ytsicon" title="Search YouTube"><i class="fa fa-youtube"></i></a>');
+               $icon.click(function () {
+                   $ytsbox.show().css({bottom: ($('.controlbox').outerHeight())+'px', right: 0});
+               });
+               control.addPluginIcon($icon);
+           });
+           if (global['YouTubeSearch'].autocomplete.enabled && !$.ui) {
+              $("<link>", {
+                  rel: "stylesheet",
+                  type: "text/css",
+                  href: global['YouTubeSearch'].autocomplete.css
+              }).appendTo('head');
+              $("<script>", {
+                  src: global['YouTubeSearch'].autocomplete.src
+              }).appendTo('head');
+           }
+           $(global).resize(function () {
+               $ytsbox.hide();
+           });
+           $('.yts-wrapper .undo').click(function () {
+               $('.yts-wrapper .yts').val('');
+               $('.yts-wrapper .list').html('');
+           });
+           $('.yts-wrapper .close').click(function () {
+               $ytsbox.hide();
+               $('.yts-wrapper .undo').click();
+           });
+           if (!global['YouTubeSearch'].autocomplete.enabled) {
+              console.log('Autocomplete is not enabled!');
+            } else if (!('options' in document.createElement('datalist'))) {
+              console.log('Browser does not support datalist; Can not use Autocomplete!');
+            } else {
+              $('.yts').keyup(_.debounce(function () {
+                  $val = $('.yts').val();
+                  if ((!$val || 0 === $val.length || /^\s*$/.test($val))) {
+                     return;
+                  }
+                  $.ajax({
+                      url: ['http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube',
+                            '&hjson=t&cp=1&q=', $('.yts').val(), '&format=5&alt=json&callback=?'].join(''),
+                      dataType: 'jsonp',
+                      success: function(data, textStatus, request) {
+                          $dataset = $('#YouTubeSearch').empty();
+                          $.map(data[1], function (item) {
+                              $dataset.append($('<option value="'+item[0]+'">'));
+                          });
+                          $dataset.append($('<option />'))
+                      }
+                   });
+              }, (global['YouTubeSearch'].autocomplete.speed||500)));
+           }
+           $('.yts-wrapper .search').click(function () {
+               global['gapi'].client.youtube.search.list({
+                   part: "snippet",
+                   type: "video",
+                   q: $('.yts-wrapper .yts').val(),
+                   maxResults: 10,
+                   order: "viewCount"
+                }).execute(function (res) { 
+                   if (res.error) {
+                      $(".yts-wrapper .list").html('<center>'+(res.message||'Could not get videos.')+'</center>');
+                    } else {
+                      var html = [];
+                      $.each(res.result.items, function(index, item) {
+                          var title = item.snippet.title,
+                              vid = item.id.videoId;
+                          html.push([
+                              '<div><img src="https://i.ytimg.com/vi/', vid,'/default.jpg" />',
+                              '<h4>', title, '</h4><i class="share fa fa-share" data-ytid="',vid,'"></i></h4>',
+                              '</span><i class="date">', new Date(item.snippet.publishedAt).toLocaleString(), '</i>',
+                              '<br /><span class="desc">', (item.snippet.description||'&nbsp;'), '</span></div>',
+                          ].join(''));
+                      });
+                      $(".yts-wrapper .list").html(html.join('<hr />'));
+                      $('.yts-wrapper .list .share').click(function () {
+                          var area = $('#kiwi .controlbox textarea');
+                          area.val(area.val().trim()+' https://youtu.be/'+$(this).data('ytid'));
+                      });
+                   }
+               });
+           });
+        } else { setTimeout(function () { hasGapi(gapiCounter); }, 100); };
+    })(0);
+})(window);
+</script>
+<script type="text/html" id="tmpl_youtubesearch">
+ <div class="yts-wrapper">
+   <input class="yts" list="YouTubeSearch" placeholder="YouTube Search" />
+   <i class="search options fa fa-search"></i>
+   <i class="undo options fa fa-undo"></i>
+   <i class="close options fa fa-times"></i><hr class="break" />
+   <div class="list"></div>
+ </div>
+ <datalist id="YouTubeSearch"></datalist>
+</script>
