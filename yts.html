@@ -99,16 +99,6 @@ YouTubeSearch = {
                });
                control.addPluginIcon($icon);
            });
-           if (global['YouTubeSearch'].autocomplete.enabled && !$.ui) {
-              $("<link>", {
-                  rel: "stylesheet",
-                  type: "text/css",
-                  href: global['YouTubeSearch'].autocomplete.css
-              }).appendTo('head');
-              $("<script>", {
-                  src: global['YouTubeSearch'].autocomplete.src
-              }).appendTo('head');
-           }
            $(global).resize(function () {
                $ytsbox.hide();
            });
