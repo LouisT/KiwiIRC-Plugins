@@ -91,7 +91,7 @@ YouTubeSearch = {
         } else if (global['gapi'] && global['gapi'].client) {
            var $ytsbox = $($('#tmpl_youtubesearch').html()).hide().appendTo($('#kiwi'));
            global['gapi'].client.setApiKey(global['YouTubeSearch'].apikey);
-           global['gapi'].client.load("youtube", "v3", function() {
+           global['gapi'].client.load("youtube", "v3", function () {
                var control = kiwi.components.ControlInput(),
                    $icon = $('<a class="ytsicon" title="Search YouTube"><i class="fa fa-youtube"></i></a>');
                $icon.click(function () {
@@ -116,13 +116,13 @@ YouTubeSearch = {
               console.log('Browser does not support datalist; Can not use Autocomplete!');
             } else {
               $('.yts').keyup(_.debounce(function () {
-                  $val = $('.yts').val();
+                  $val = $('.yts-wrapper .yts').val();
                   if ((!$val || 0 === $val.length || /^\s*$/.test($val))) {
                      return;
                   }
                   $.ajax({
                       url: ['http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube',
-                            '&hjson=t&cp=1&q=', $('.yts').val(), '&format=5&alt=json&callback=?'].join(''),
+                            '&hjson=t&cp=1&q=', $val, '&format=5&alt=json&callback=?'].join(''),
                       dataType: 'jsonp',
                       success: function(data, textStatus, request) {
                           $dataset = $('#YouTubeSearch').empty();
@@ -146,12 +146,12 @@ YouTubeSearch = {
                       $(".yts-wrapper .list").html('<center>'+(res.message||'Could not get videos.')+'</center>');
                     } else {
                       var html = [];
-                      $.each(res.result.items, function(index, item) {
+                      $.each(res.result.items, function (index, item) {
                           var title = item.snippet.title,
                               vid = item.id.videoId;
                           html.push([
-                              '<div><img src="https://i.ytimg.com/vi/', vid,'/default.jpg" />',
-                              '<h4>', title, '</h4><i class="share fa fa-share" data-ytid="',vid,'"></i></h4>',
+                              '<div><img src="https://i.ytimg.com/vi/', vid, '/default.jpg" />',
+                              '<h4>', title, '</h4><i class="share fa fa-share" data-ytid="', vid, '"></i></h4>',
                               '</span><i class="date">', new Date(item.snippet.publishedAt).toLocaleString(), '</i>',
                               '<br /><span class="desc">', (item.snippet.description||'&nbsp;'), '</span></div>',
                           ].join(''));
