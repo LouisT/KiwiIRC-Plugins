@@ -121,7 +121,7 @@ YouTubeSearch = {
                      return;
                   }
                   $.ajax({
-                      url: ['http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube',
+                      url: ['https://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube',
                             '&hjson=t&cp=1&q=', $val, '&format=5&alt=json&callback=?'].join(''),
                       dataType: 'jsonp',
                       success: function(data, textStatus, request) {
